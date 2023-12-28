@@ -1,0 +1,6 @@
+selenium
+undetected_chromedriver
+SpeechRecognition
+briefcase
+websocket-client
+pyAudio
