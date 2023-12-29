@@ -39,10 +39,26 @@ Speech-to-text:
 Text-to-speech:
 - [x] Google Text to Speech
 
-
 ## How test it?
 
-There is a test.py file that can be used to test the library. Comment or uncomment the parts you want to test.
+Now I'm developing a multiplatform GUI (Toga) for that reasons:
+
+![Odd GUI](https://i.ibb.co/q7jDv4W/Captura-desde-2023-12-29-17-56-35.png)
+
+if you want to test it, launch:
+    
+```bash
+briefcase update
+briefcase run linux
+```
+
+or 
+    
+```bash
+briefcase dev
+```
+
+There was a test.py file that could be used to test the library. 
 
 For instance:
 

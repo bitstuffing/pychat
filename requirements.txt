@@ -4,3 +4,6 @@ SpeechRecognition
 briefcase
 websocket-client
 pyAudio
+briefcase
+poetry
+pytest

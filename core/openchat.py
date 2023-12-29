@@ -1,5 +1,7 @@
 from core.browser import Browser
 
+import queue
+
 class OpenChat(Browser):
 
     main_origin = "https://openchat.team"
@@ -29,7 +31,7 @@ class OpenChat(Browser):
     def obtain_models(self):
         return self.session.post(self.url_api_models, json={'key': ''}, headers=Browser.headers)
 
-    def send_message(self, message, stream=True):
+    def send_message(self, message, stream=True, queue=queue.Queue()):
 
         if self.history == {}:
             self.history = self.build_history()
@@ -56,6 +58,7 @@ class OpenChat(Browser):
                             else:
                                 raise UnicodeDecodeError("Not possible to decode it :'(")
                         stringResponse += resp
+                        queue.put(resp)
                         print(resp, end='')
                 print("")
                 return stringResponse
