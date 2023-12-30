@@ -12,6 +12,8 @@ import queue as q
 import asyncio
 
 import base64
+#import platform
+
 
 PADDING = 2
 
@@ -137,8 +139,6 @@ class pyChat(toga.App):
             content = content,
         )
 
-        print(content)
-
         self.left_panel = toga.Box(
             style=Pack(padding=PADDING, flex=1, direction=ROW)
         )
@@ -151,10 +151,16 @@ class pyChat(toga.App):
             ],
             style=Pack(flex=1, direction=COLUMN),
         )
-        content_box = toga.SplitContainer(style=Pack(flex=1))
-        content_box.content = [(self.left_panel, 1), (box, 3)]
 
-        self.main_window.content = content_box
+        #print(content)
+        #if platform.system() == 'Linux':
+        if 'ANDROID_STORAGE' not in os.environ:
+            content_box = toga.SplitContainer(style=Pack(flex=1))
+            content_box.content = [(self.left_panel, 1), (box, 3)]
+            self.main_window.content = content_box
+        else:
+            self.main_window.content = box
+
         self.main_window.show()
 
 
