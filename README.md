@@ -2,7 +2,7 @@
 
 This project tries to be a free library to create a python assistant with GPT4 and other providers like Bing Search, Watson Speech to Text, Bing Speech to Text, Google Text to Speech and more.
 
-In a summary, it's a python library that can be used to create a python assistant.
+In a summary, it's a python library that can be used to create a python assistant, without any API key, and with free models.
 
 ## Why pyChat?
 
@@ -41,7 +41,11 @@ Text-to-speech:
 
 ## How test it?
 
-Now I'm developing a multiplatform GUI (Toga) for that reasons:
+Now I'm developing a multiplatform GUI (Toga) for that reason:
+
+![WebView GUI](https://i.ibb.co/5h8TXS1/Captura-desde-2023-12-30-02-00-14.png)
+
+or simply:
 
 ![Odd GUI](https://i.ibb.co/q7jDv4W/Captura-desde-2023-12-29-17-56-35.png)
 
