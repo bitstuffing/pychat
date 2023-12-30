@@ -201,7 +201,26 @@ body {
 <script src="https://unpkg.com/commonmark@0.30.0"></script>
 
 <script type="text/javascript" >
-    function createChatMessageNode(name, message, imageUrl) {
+
+    function b64DecodeUnicode(str) {
+        // Going backwards: from bytestream, to percent-encoding, to original string.
+        return decodeURIComponent(atob(str).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+    }
+
+    function updateChatMessageNode(id, message) {
+        // update and decode base64 string message 
+        message = b64DecodeUnicode(message);
+        var reader = new commonmark.Parser();
+        var writer = new commonmark.HtmlRenderer();
+        var content = reader.parse(message);
+        var text = writer.render(content);
+        document.getElementById(id).innerHTML = text;
+        
+    }
+
+    function createChatMessageNode(id, name, message, imageUrl) {
         const messageContainer = document.createElement('div');
         messageContainer.className = 'chat_container_board';
 
@@ -228,6 +247,7 @@ body {
         const messageBubble = document.createElement('div');
         messageBubble.className = 'chat_bubble';
         const messageText = document.createElement('span');
+        messageText.id = id;
         messageText.textContent = message;
         messageBubble.appendChild(messageText);
 

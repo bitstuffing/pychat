@@ -11,12 +11,13 @@ import threading
 import queue as q
 import asyncio
 
+import base64
+
 PADDING = 2
 
 class pyChat(toga.App):
 
     content = ""
-
 
     def on_webview_load(self, widget, **kwargs):
         #self.label.text = "content loaded!"
@@ -36,12 +37,6 @@ class pyChat(toga.App):
         self.label.text = content
         self.text_input.value = ""
 
-        self.content += f"<b>Me: <span style='background-color: white;'>{content}</span></b><br/>"
-
-        #self.webview.set_content(
-        #    root_url="",
-        #    content = self.content,
-        #)
         self.do_background_petition(content)
 
     def do_background_petition(self, content):
@@ -50,17 +45,13 @@ class pyChat(toga.App):
 
         self.webview.evaluate_javascript("createChatMessageNodeUser('User','" + content + "','https://randomuser.me/api/portraits/men/32.jpg')")
 
+        #read_message_thread = threading.Thread(target=self.read_messages, args=(self.queue, content,))
+        #read_message_thread.start()
         self.add_background_task(self.read_messages)
         
         #response = self.openchat.send_message(content, stream=True, queue=queue)
         send_message_thread = threading.Thread(target=self.openchat.send_message, args=(content, True, self.queue))
         send_message_thread.start()
-
-        #read_message_thread = threading.Thread(target=self.read_messages, args=(self.queue, content,))
-        #read_message_thread.start()
-
-        
-
 
 
     #def read_messages(self, queue, content):
@@ -71,32 +62,35 @@ class pyChat(toga.App):
         response = ""
         newContent = ""
         counter = 0
+        import uuid
+        random_identifier = uuid.uuid4().hex
+
+        self.webview.evaluate_javascript("createChatMessageNode('"+random_identifier+"', 'Bot','" + random_identifier + "','https://randomuser.me/api/portraits/men/9.jpg')")
 
         while counter < 20:
-            #newContent = f"<b>Me: <span style='background-color: white;'>{content}</span></b><br/>"
-
             try:
                 response += self.queue.get(False)
+                # encode message to javascript base64    
+                sample_string_bytes = response.encode("utf-8") 
+                base64_bytes = base64.b64encode(sample_string_bytes) 
+                base64_string = base64_bytes.decode("utf-8")
+                self.webview.evaluate_javascript("updateChatMessageNode('"+random_identifier+"', '"+base64_string+"')")
             except q.Empty:
                 counter+=1
                 self.label.text = f"counter: {counter}"
                 pass
 
-            #newContent += f"<b>Bot: <span style='background-color: grey;'>{response}</span></b><br/>"
-            
-            #self.webview.set_content(
-            #    root_url="",
-            #    content = newContent,
-            #)
-
-            #sleep 0.2 second
-            #import time
-            #time.sleep(0.2)
             await asyncio.sleep(0.2)
 
         self.label.text = "Response finished!"
         self.content += newContent
-        self.webview.evaluate_javascript("createChatMessageNode('Bot','" + response + "','https://randomuser.me/api/portraits/men/9.jpg')")
+        
+        # encode message to javascript base64
+        sample_string_bytes = response.encode("utf-8") 
+        base64_bytes = base64.b64encode(sample_string_bytes) 
+        base64_string = base64_bytes.decode("utf-8")
+        self.webview.evaluate_javascript("updateChatMessageNode('"+random_identifier+"', '"+base64_string+"')")
+        
         return response
 
     def do_gain_focus(self, widget, **kwargs):
@@ -130,7 +124,6 @@ class pyChat(toga.App):
         )
 
         self.webview = toga.WebView(
-            #url="file://"+os.getcwd()+"/resources/base.html",
             on_webview_load=self.on_webview_load,
             style=Pack(flex=1),
         )

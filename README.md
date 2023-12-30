@@ -4,15 +4,22 @@ This project tries to be a free library to create a python assistant with GPT4 a
 
 In a summary, it's a python library that can be used to create a python assistant, without any API key, and with free models.
 
+
 ## Why pyChat?
 
 I always want to know how the things works, and other libraries don't show you how the things works. 
 
 I want to offer an updated library with some free models, to use it for free, and all will be open source.
 
-Some other projects provide libraries to create promps with GPT4, but they are complicated, unsupported and not really fixed, because these providers try to have your data.
 
-Actually, it's a library that can be used in any python project, but it will became a complete assistant with GUI in the future.
+## How test it?
+
+Now I'm developing a multiplatform GUI (Toga):
+
+![WebView GUI](https://i.ibb.co/5h8TXS1/Captura-desde-2023-12-30-02-00-14.png)
+
+![Full conversation GUI](https://i.ibb.co/GP41Hjq/Captura-desde-2023-12-30-11-30-29.png)
+
 
 ### Real AI, including ChatGPT-4 free models
 
@@ -21,10 +28,6 @@ There are a lot of libraries and other stuff you can use in Internet with ads sa
 GPT-4 is a paid model, and not all people want afford it in his home. Of course, not all people is a business to use it. 
 
 But there are some providers/models that are free to use. This development tries to support that.
-
-# Development
-
-Currently it's a library for investigation purposes, regarding to obtain a real python assistant, a multiplatform library with GUI that can be used for free for any user.
 
 ## Which parts are being implemented?
 
@@ -39,17 +42,9 @@ Speech-to-text:
 Text-to-speech:
 - [x] Google Text to Speech
 
-## How test it?
+# Development
 
-Now I'm developing a multiplatform GUI (Toga) for that reason:
-
-![WebView GUI](https://i.ibb.co/5h8TXS1/Captura-desde-2023-12-30-02-00-14.png)
-
-or simply:
-
-![Odd GUI](https://i.ibb.co/q7jDv4W/Captura-desde-2023-12-29-17-56-35.png)
-
-if you want to test it, launch:
+If you want to test it, launch:
     
 ```bash
 briefcase update
