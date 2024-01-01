@@ -10,7 +10,7 @@ import os
 import threading
 import queue as q
 import asyncio
-
+from urllib.parse import quote
 import base64
 #import platform
 
@@ -35,6 +35,7 @@ class pyChat(toga.App):
             summary = content[0 : min(20, len(content))]
             self.left_panel.add(toga.Button(summary, on_press=self.on_click))
             self.openchat = OpenChat()
+            self.content = content
 
         self.label.text = content
         self.text_input.value = ""
@@ -134,10 +135,17 @@ class pyChat(toga.App):
         current_dir = os.path.dirname(os.path.abspath(__file__))
         with open(current_dir+"/resources/base.html", "r") as f:
             content = f.read()
-        self.webview.set_content(
-            root_url="",
-            content = content,
-        )
+        # fix related to https://github.com/beeware/toga/issues/2242
+        if 'ANDROID_STORAGE' not in os.environ:
+            self.webview.set_content(
+                root_url="",
+                content = content,
+            )
+        else:
+            self.webview.set_content(
+                "data:text/html", quote(content) ,
+            )
+
 
         self.left_panel = toga.Box(
             style=Pack(padding=PADDING, flex=1, direction=ROW)
