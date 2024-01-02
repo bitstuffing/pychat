@@ -7,3 +7,4 @@ pyAudio
 briefcase
 poetry
 pytest
+aiohttp

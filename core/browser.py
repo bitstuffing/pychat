@@ -215,8 +215,13 @@ class Browser():
         return cookie_string
 
     def extractCookiesFromRealFirefox(self, url):
+        
+        self.launch_firefox(url, 5)
+
+        return self.extractFirefoxCookies()
+
+    def extractFirefoxCookies(self):
         firefox_cookies = "/tmp/cookies.sqlite"
-        self.launch_firefox(url, 10)
 
         # get the system content of the file ~/.mozilla/firefox/profiles.ini
         response = os.popen("cat ~/.mozilla/firefox/profiles.ini").read()

@@ -5,7 +5,11 @@ import os
 import re
 import asyncio
 import aiohttp
+import string
+import random
 import requests
+import urllib
+import urllib.parse
 from aiohttp import ClientSession, ClientTimeout
 import datetime
 from dateutil.tz import tzutc
@@ -38,7 +42,7 @@ class AudioRecorder(threading.Thread):
                 self.queue.put(audio.frame_data)
 
 class Bing(Browser):
-    VERSION = "1.1366.5"
+    VERSION = "1.1381.12"
 
     conversationId = ''
     clientId = ''
@@ -54,35 +58,6 @@ class Bing(Browser):
     }
     
     DELIMITER = "\x1e"
-
-    optionsSets = [
-        'nlu_direct_response_filter',
-        'deepleo',
-        'disable_emoji_spoken_text',
-        'responsible_ai_policy_235',
-        'enablemm',
-        'iyxapbing',
-        'iycapbing',
-        'gencontentv3',
-        'fluxsrtrunc',
-        'fluxtrunc',
-        'fluxv1',
-        'rai278',
-        'replaceurl',
-        'eredirecturl',
-        'nojbfedge'
-    ]
-
-    allowedMessageTypes = [
-        "ActionRequest",
-        "Chat",
-        "Context",
-        "Progress",
-        "SemanticSerp",
-        "GenerateContentQuery",
-        "SearchQuery",
-        "RenderCardRequest",
-    ]
 
     def __init__(self):
         super().__init__()
@@ -108,6 +83,7 @@ class Bing(Browser):
             'Accept-Language': 'es-ES,es;q=0.8,en-US;q=0.5,en;q=0.3',
             'Sec-WebSocket-Version': '13',
             'Origin': 'https://www.bing.com',
+            'Host': 'sydney.bing.com',
             'Sec-WebSocket-Extensions': 'permessage-deflate',
             'Connection': 'keep-alive, Upgrade',
             'Sec-Fetch-Dest': 'empty',
@@ -126,6 +102,18 @@ class Bing(Browser):
             self.session.get(self.url, headers=self.headers)
             pass
         '''
+        # set MUID, _EDGE_S, _EDGE_V, SRCHD, SRCHUID, SRCHUSR, SRCHHPGUSR, _SS, _HPVN cookies
+        response = self.session.get("https://www.bing.com/", headers=self.headers)
+        for cookie in response.cookies:
+            #print(cookie.name+"="+cookie.value)
+            self.session.cookies.set(cookie.name, cookie.value)
+
+        # set MUIDB cookie
+        response = self.session.get("https://www.bing.com/geolocation/write?isDevLoc=false", headers=self.headers)
+        for cookie in response.cookies:
+            #print(cookie.name+"="+cookie.value)
+            self.session.cookies.set(cookie.name, cookie.value)
+        
 
     def getCID(self):
         response1 = self.session.get(self.form_url, headers=self.headers)
@@ -140,13 +128,22 @@ class Bing(Browser):
 
     def init_conversation(self, prompt="hello"):
         prompt = prompt.encode('ascii', 'ignore').decode('ascii')
-        #self.invocation_id += 1
         cookies = ""
+        cookies = self.extractFirefoxCookies()
+        if True:
+            #cookies = self.launch_captcha_solver()
+            for cookie in cookies.split("; "):
+                if "=" in cookie:
+                    cookie = cookie.split("=")
+                    #print("updating cookie: "+cookie[0]+"="+cookie[1])
+                    self.session.cookies.set(cookie[0], cookie[1])
+
         for cookie in self.session.cookies:
             cookies += cookie.name+"="+cookie.value+"; "
+        print("PRE cookies: "+cookies)
         response = asyncio.run(self.run_init_conversation(prompt, cookies=cookies))
         if "CaptchaChallenge" in response.data:
-            cookies = self.launch_captcha_solver(response.data)
+            cookies = self.launch_captcha_solver()
             # updates self.session cookies using normal string cookies, parsing it and creating a cookie object for each one
             
             for cookie in cookies.split("; "):
@@ -158,45 +155,65 @@ class Bing(Browser):
         response2 = asyncio.run(self.run_init_conversation(prompt, cookies))
 
 
-    def launch_captcha_solver(self, response):
+    def launch_captcha_solver(self):
+        # set valid cct cookie
         url = "https://www.bing.com/turing/captcha/challenge?q=&iframeid=local-gen-"+str(uuid.uuid4())
         cookie = self.extractCookiesFromRealFirefox(url)
         return cookie
+    
+    def cookiesToDict(self, cookies: str) -> dict:
+        cookies = {
+            key_value.strip().split("=")[0]: "=".join(key_value.split("=")[1:])
+            for key_value in cookies.split(";")
+        }
+        cookies2 = {}
+        for key in cookies:
+            if cookies[key] == '':
+                #del cookies[key]
+                pass
+            else:
+                cookies2[key] = cookies[key].strip()
+        return cookies2
+
 
 
     async def run_init_conversation(self, prompt="hello world!", cookies = ''):
+        print("init_conversation: cookies: "+cookies)
         if cookies != '':
             self.headers['Cookie'] = cookies
-        if self.conversationId == '' or self.clientId == '' or self.conversationSignature == '':
+        if self.conversationId == '' or self.clientId == '' or self.conversationSignature == '' or self.conversationSignature2 == '':
             async def init_conversation_async():
                 response = self.session.get(f"https://www.bing.com/turing/conversation/create?bundleVersion={Bing.VERSION}", headers=self.headers)
                 data = response.json()
                 conversationId = data.get('conversationId')
                 clientId = data.get('clientId')
                 conversationSignature = response.headers.get('X-Sydney-Encryptedconversationsignature')
-
-                return conversationId, clientId, conversationSignature
+                conversationSignature2 = response.headers.get('X-Sydney-Conversationsignature')
+                return conversationId, clientId , conversationSignature, conversationSignature2
 
 
                 
             tasks = [asyncio.create_task(init_conversation_async())]
             await asyncio.gather(*tasks)
 
-            self.conversationId, self.clientId, self.conversationSignature = tasks[0].result()
+            self.conversationId, self.clientId, self.conversationSignature, self.conversationSignature2 = tasks[0].result()
+            #self.conversationId, self.clientId, self.conversationSignature = tasks[0].result()
 
-        if cookies != '':
-            self.ws_headers['Cookie'] = cookies
-
-        async with ClientSession(headers=self.ws_headers, timeout=aiohttp.ClientTimeout(total=60)) as session:
+        async with ClientSession(headers=self.ws_headers, cookies=self.cookiesToDict(cookies), timeout=aiohttp.ClientTimeout(total=60)) as session:
             async with session.ws_connect('wss://sydney.bing.com/sydney/ChatHub', autoping=False, params={'sec_access_token': self.conversationSignature}) as wss:
+                #print("starting conversation...")
                 await wss.send_str(self.format_message({'protocol': 'json', 'version': 1}))
                 response = await wss.receive(timeout=10)
-                await wss.send_str(self.create_message(self.conversationId, self.clientId, self.conversationSignature, prompt))
+                #print("response: "+response.data)
+                await wss.send_str(self.create_message(self.conversationId, self.clientId, self.conversationSignature, self.conversationSignature2, prompt))
+                self.invocation_id += 1
                 response2 = await wss.receive(timeout=10)
+                #print("response2: "+response2.data)
                 if "CaptchaChallenge" in response2.data:
                     return response2
                 else:
                     print(response2.data)
+                #print("done!")
                 # get all responses until disconnected (TODO handler out of this function)
                 while True:
                     response = await wss.receive(timeout=10)
@@ -209,10 +226,13 @@ class Bing(Browser):
                     else:
                         json_response = response.data
                         if json_response != "":
-                            print(len(json_response))
-                            print(json_response)
+                            try:
+                                print(len(json_response))
+                                print(json_response)
+                            except Exception as e:
+                                pass
     
-    def create_message(self, conversationId: str, clientId: str, conversationSignature: str, prompt: str):
+    def create_message(self, conversationId: str, clientId: str, conversationSignature: str, conversationSignature2: str, prompt: str):
         request_id = str(uuid.uuid4())
         struct = {
             "arguments": [
@@ -228,9 +248,7 @@ class Bing(Browser):
                         "iyxapbing",
                         "iycapbing",
                         "galileo",
-                        "saharagenconv5",
-                        "uquopt",
-                        "logprobsc"
+                        "saharagenconv5"
                     ],
                     "allowedMessageTypes": [
                         "ActionRequest",
@@ -250,62 +268,39 @@ class Bing(Browser):
                         "GenerateContentQuery",
                         "SearchQuery"
                     ],
-                    "sliceIds": [
-                        "techpills",
-                        "anskeep",
-                        "inlineta",
-                        "inlinetadisc",
-                        "gbacf",
-                        "ssadsv2-c",
-                        "dlid",
-                        "autotts",
-                        "sydoroff",
-                        "voicemap",
-                        "specedgecf",
-                        "translrefctrl",
-                        "fontsz1",
-                        "styleovr",
-                        "ebd",
-                        "ebm",
-                        "1207persc",
-                        "713logprobsc",
-                        "1103delay55s0",
-                        "1204gldcl1s0",
-                        "1129gpt4ts0",
-                        "kchero50cf",
-                        "cacdupereccf",
-                        "cacmuidarb",
-                        "cacfrwebt3",
-                        "sswebtop1cf",
-                        "sswebtop3"
-                    ],
+                    "sliceIds": [],
                     "verbosity": "verbose",
+                    "scenario": "SERP",
                     "spokenTextMode": "None",
+                    "traceId": ''.join(random.choice(string.hexdigits.upper()) for _ in range(32)),
+                    "conversationHistoryOptionsSets": [
+                        "autosave",
+                        "savemem",
+                        "uprofupd",
+                        "uprofgen"
+                    ],
                     "isStartOfSession": self.invocation_id == 0,
                     'requestId': request_id,
                     "message": {
-                        #'userIpAddress': self.getInternetIpAddress(),
-                        #"locale": "es-ES",
-                        #"market": "es-ES",
-                        #"region": "ES",
-                        'timestamp': self.getTimeStamp(),
-                        'author': 'user',
-                        'inputMethod': 'Keyboard',
-                        'text': prompt,
-                        'messageType': 'Chat',
-                        'requestId': request_id,
-                        'messageId': request_id,
+                        #"userIpAddress": self.getInternetIpAddress(),
+                        "timestamp": self.getTimeStamp(),
+                        "author": "user",
+                        "inputMethod": "Keyboard",
+                        "text": prompt,
+                        "messageType": "SearchQuery",
+                        "requestId": request_id,
+                        "messageId": request_id
                     },
                     "tone": "Balanced", # Creative, Precise, Balanced
                     "spokenTextMode": "None",
-                    "conversationSignature": conversationSignature,
+                    "conversationSignature": conversationSignature2,
                     "conversationId": conversationId,
                     "participant": {
                         "id": clientId
                     }
                 }
             ],
-            "invocationId": "1",
+            "invocationId": str(self.invocation_id),
             "target": "chat",
             "type": 4
         }
@@ -363,8 +358,7 @@ class Bing(Browser):
         return message
 
     async def speech_to_text_async(self):
-        import string
-        import random
+        
         '''
         if( self.cid == '' or self.ig == ''):
             self.session = requests.Session()
@@ -391,7 +385,6 @@ class Bing(Browser):
         connection_key = ''.join(random.choice(string.hexdigits.upper()) for _ in range(32)) 
         print(f'connection_key: {connection_key}')
         #connection_key = str(uuid.uuid4())
-        import urllib.parse
         paramsDic = {
             'clientbuild': 'sydney',
             'referer': urllib.parse.quote_plus(self.form_url),
