@@ -125,9 +125,14 @@ class Bing(Browser):
         self.cid = re.search(r'CID:"(.*?)"', html).group(1)
         print(f"cid: {self.cid}")
 
+    def init_conversation(self, cmd="hello"):
+        asyncio.run(self.init_conversation_async2(cmd))
 
-    def init_conversation(self, prompt="hello"):
-        prompt = prompt.encode('ascii', 'ignore').decode('ascii')
+    async def init_conversation_async2(self, prompt):
+        try:
+            prompt = prompt.encode('ascii', 'ignore').decode('ascii')
+        except:
+            pass
         cookies = ""
         cookies = self.extractFirefoxCookies()
         if True:
@@ -140,8 +145,10 @@ class Bing(Browser):
 
         for cookie in self.session.cookies:
             cookies += cookie.name+"="+cookie.value+"; "
-        print("PRE cookies: "+cookies)
-        response = asyncio.run(self.run_init_conversation(prompt, cookies=cookies))
+        #print("PRE cookies: "+cookies)
+        coroutine = self.run_init_conversation(prompt, cookies=cookies)
+        #response = asyncio.run(coroutine)
+        response = await coroutine
         if "CaptchaChallenge" in response.data:
             cookies = self.launch_captcha_solver()
             # updates self.session cookies using normal string cookies, parsing it and creating a cookie object for each one
@@ -152,7 +159,7 @@ class Bing(Browser):
                     #print("updating cookie: "+cookie[0]+"="+cookie[1])
                     self.session.cookies.set(cookie[0], cookie[1])
 
-        response2 = asyncio.run(self.run_init_conversation(prompt, cookies))
+        self.run_init_conversation(prompt, cookies)
 
 
     def launch_captcha_solver(self):
@@ -175,29 +182,26 @@ class Bing(Browser):
                 cookies2[key] = cookies[key].strip()
         return cookies2
 
-
+    async def init_conversation_async(self):
+        response = self.session.get(f"https://www.bing.com/turing/conversation/create?bundleVersion={Bing.VERSION}", headers=self.headers)
+        data = response.json()
+        conversationId = data.get('conversationId')
+        clientId = data.get('clientId')
+        conversationSignature = response.headers.get('X-Sydney-Encryptedconversationsignature')
+        conversationSignature2 = response.headers.get('X-Sydney-Conversationsignature')
+        #print(f"CONVERSATION-ID: {conversationId}")
+        return conversationId, clientId , conversationSignature, conversationSignature2
 
     async def run_init_conversation(self, prompt="hello world!", cookies = ''):
-        print("init_conversation: cookies: "+cookies)
+        #print("init_conversation: cookies: "+cookies)
         if cookies != '':
             self.headers['Cookie'] = cookies
         if self.conversationId == '' or self.clientId == '' or self.conversationSignature == '' or self.conversationSignature2 == '':
-            async def init_conversation_async():
-                response = self.session.get(f"https://www.bing.com/turing/conversation/create?bundleVersion={Bing.VERSION}", headers=self.headers)
-                data = response.json()
-                conversationId = data.get('conversationId')
-                clientId = data.get('clientId')
-                conversationSignature = response.headers.get('X-Sydney-Encryptedconversationsignature')
-                conversationSignature2 = response.headers.get('X-Sydney-Conversationsignature')
-                return conversationId, clientId , conversationSignature, conversationSignature2
-
-
                 
-            tasks = [asyncio.create_task(init_conversation_async())]
-            await asyncio.gather(*tasks)
-
-            self.conversationId, self.clientId, self.conversationSignature, self.conversationSignature2 = tasks[0].result()
-            #self.conversationId, self.clientId, self.conversationSignature = tasks[0].result()
+            #tasks = [asyncio.create_task(self.init_conversation_async())]
+            #await asyncio.gather(*tasks)
+            #self.conversationId, self.clientId, self.conversationSignature, self.conversationSignature2 = tasks[0].result()
+            self.conversationId, self.clientId, self.conversationSignature, self.conversationSignature2 = await self.init_conversation_async()
 
         async with ClientSession(headers=self.ws_headers, cookies=self.cookiesToDict(cookies), timeout=aiohttp.ClientTimeout(total=60)) as session:
             async with session.ws_connect('wss://sydney.bing.com/sydney/ChatHub', autoping=False, params={'sec_access_token': self.conversationSignature}) as wss:
