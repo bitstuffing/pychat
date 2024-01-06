@@ -16,9 +16,11 @@ I want to offer an updated library with some free models, to use it for free, an
 
 Now I'm developing a multiplatform GUI (Toga):
 
-![WebView GUI](https://i.ibb.co/5h8TXS1/Captura-desde-2023-12-30-02-00-14.png)
+![WebView GUI](https://i.ibb.co/pjbMq8c/Captura-desde-2024-01-06-22-59-58.png)
 
-![Full conversation GUI](https://i.ibb.co/GP41Hjq/Captura-desde-2023-12-30-11-30-29.png)
+With a working mobile version:
+
+![Mobile GUI](https://i.ibb.co/NFsRKVb/photo-2024-01-01-21-41-27.jpg)
 
 
 ### Real AI, including ChatGPT-4 free models
@@ -57,9 +59,7 @@ or
 briefcase dev
 ```
 
-There was a test.py file that could be used to test the library. 
-
-For instance:
+There was a test.py file that could be used to test the library. Anyway you can use it for your own tests, for instance:
 
 ```python
 

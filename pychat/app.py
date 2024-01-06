@@ -6,14 +6,13 @@ from toga.style import Pack
 from toga.constants import CENTER, COLUMN, HIDDEN, ROW, VISIBLE
 
 from core.openchat import OpenChat
+from core.bing import Bing
 import os
 import threading
 import queue as q
 import asyncio
 from urllib.parse import quote
 import base64
-#import platform
-
 
 PADDING = 2
 
@@ -28,19 +27,54 @@ class pyChat(toga.App):
     def on_get_url(self, widget, **kwargs):
         self.label.text = self.webview.url
 
+    def delete_conversation(self, widget, **kwargs):
+        self.left_panel.remove(widget.parent)
+        self.label.text = "conversation deleted!"
+
+    def add_conversation(self, content):
+        summary = content[0 : min(20, len(content))]
+        #self.left_panel.add(toga.Button(summary, on_press=self.on_click))
+
+        panel = toga.Box(style=Pack(padding=PADDING, flex=1, direction=ROW, background_color="grey", width=250, height=40))
+        button = toga.Button(summary + " ...", on_press=self.on_click, style=Pack(direction=COLUMN, padding=PADDING))
+        delete_button = toga.Button("X", on_press=self.delete_conversation, style=Pack(direction=COLUMN, padding=PADDING))
+        panel.add(button)
+        panel.add(delete_button)
+        self.left_panel.add(panel)
+        
+        self.left_panel.style.width = 20
+        self.left_panel.style.max_width = 250
+
+    def create_conversation(self, content):
+        
+        if 'ANDROID_STORAGE' not in os.environ:
+            selected = self.selection.value
+            print("selected: ", selected)
+            if selected.name == "Bing":
+                self.chat = Bing()
+            elif selected.name == "GPT4 (OpenChat)":
+                self.chat = OpenChat()
+        else:
+            self.chat = OpenChat()
+            
+        self.content = content
+
+        self.add_conversation(content)
+
     def do_extract_values(self, widget, **kwargs):
 
         content = self.text_input.value
         if self.content == "":
-            summary = content[0 : min(20, len(content))]
-            self.left_panel.add(toga.Button(summary, on_press=self.on_click))
-            self.openchat = OpenChat()
-            self.content = content
+            self.create_conversation(content)
 
         self.label.text = content
         self.text_input.value = ""
 
         self.do_background_petition(content)
+
+    async def bing_background_task(self, widget, **kwargs):
+        self.label.text = "Bing background task"
+        await self.chat.init_conversation_async2(self.bingMessage)
 
     def do_background_petition(self, content):
        
@@ -53,8 +87,37 @@ class pyChat(toga.App):
         self.add_background_task(self.read_messages)
         
         #response = self.openchat.send_message(content, stream=True, queue=queue)
-        send_message_thread = threading.Thread(target=self.openchat.send_message, args=(content, True, self.queue))
-        send_message_thread.start()
+        if isinstance(self.chat,Bing):
+            #send_message_thread = threading.Thread(target=self.chat.init_conversation, args=(content, ))
+            self.bingMessage = content
+            self.add_background_task(self.bing_background_task)
+        elif isinstance(self.chat,OpenChat):
+            send_message_thread = threading.Thread(target=self.chat.send_message, args=(content, True, self.queue, ), daemon=True)
+            send_message_thread.start()
+
+
+    def on_voice(self, widget, **kwargs):
+        self.label.text = "Voice!"
+
+    def on_reset(self, widget, **kwargs):
+        self.label.text = "Reset!"
+        self.reset_webview()
+
+    def reset_webview(self):
+        # get file content from resources/base.html
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        with open(current_dir+"/resources/base.html", "r") as f:
+            content = f.read()
+        # fix related to https://github.com/beeware/toga/issues/2242
+        if 'ANDROID_STORAGE' not in os.environ:
+            self.webview.set_content(
+                root_url="",
+                content = content,
+            )
+        else:
+            self.webview.set_content(
+                "data:text/html", quote(content) ,
+            )
 
 
     #def read_messages(self, queue, content):
@@ -73,6 +136,7 @@ class pyChat(toga.App):
         while counter < 20:
             try:
                 response += self.queue.get(False)
+                counter = 1 # reset counter
                 # encode message to javascript base64    
                 sample_string_bytes = response.encode("utf-8") 
                 base64_bytes = base64.b64encode(sample_string_bytes) 
@@ -109,43 +173,66 @@ class pyChat(toga.App):
 
         self.text_input = toga.TextInput(
             placeholder="Type something...",
-            style=Pack(padding=PADDING),
+            style=Pack(padding=PADDING, flex=1),
             on_confirm=self.do_extract_values,
             on_gain_focus=self.do_gain_focus
         )
 
-        text_box = toga.Box(
-            children=[
-                toga.Box(
-                    style=Pack(direction=COLUMN),
-                    children=[
-                        self.text_input
-                    ],
-                )
-            ],
-            style=Pack(flex=0, direction=COLUMN, padding=PADDING),
-        )
+        if 'ANDROID_STORAGE' not in os.environ:
+
+            self.selection = toga.Selection(
+                items=[
+                    {"name": "GPT4 (OpenChat)"},
+                    {"name": "Bing"},
+                ],
+                accessor="name",
+            )
+
+            text_box = toga.Box(
+                children=[
+                    toga.Box(
+                        style=Pack(direction=ROW),
+                        children=[
+                            toga.Box(
+                                style=Pack(flex=1, direction=COLUMN),
+                                children=[
+                                    self.text_input
+                                ]
+                            ),
+                            toga.Button("Voice", on_press=self.on_voice),
+                            toga.Button("New", on_press=self.on_reset),
+                            self.selection,
+                        ],
+                    )
+                ],
+                style=Pack(flex=0, direction=COLUMN, padding=PADDING),
+            )
+
+        else:
+            text_box = toga.Box(
+                children=[
+                    toga.Box(
+                        style=Pack(direction=ROW),
+                        children=[
+                            toga.Box(
+                                style=Pack(flex=1, direction=COLUMN),
+                                children=[
+                                    self.text_input
+                                ]
+                            ),
+                            toga.Button("New", on_press=self.on_reset),
+                        ],
+                    )
+                ],
+                style=Pack(flex=0, direction=COLUMN, padding=PADDING),
+            )
 
         self.webview = toga.WebView(
             on_webview_load=self.on_webview_load,
             style=Pack(flex=1),
         )
 
-        # get file content from resources/base.html
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        with open(current_dir+"/resources/base.html", "r") as f:
-            content = f.read()
-        # fix related to https://github.com/beeware/toga/issues/2242
-        if 'ANDROID_STORAGE' not in os.environ:
-            self.webview.set_content(
-                root_url="",
-                content = content,
-            )
-        else:
-            self.webview.set_content(
-                "data:text/html", quote(content) ,
-            )
-
+        self.reset_webview()
 
         self.left_panel = toga.Box(
             style=Pack(padding=PADDING, flex=1, direction=ROW)
@@ -160,12 +247,10 @@ class pyChat(toga.App):
             style=Pack(flex=1, direction=COLUMN),
         )
 
-        #print(content)
-        #if platform.system() == 'Linux':
         if 'ANDROID_STORAGE' not in os.environ:
-            content_box = toga.SplitContainer(style=Pack(flex=1))
-            content_box.content = [(self.left_panel, 1), (box, 3)]
-            self.main_window.content = content_box
+            self.content_box = toga.SplitContainer(style=Pack(flex=1))
+            self.content_box.content = [(self.left_panel, 1), (box, 3)]
+            self.main_window.content = self.content_box
         else:
             self.main_window.content = box
 

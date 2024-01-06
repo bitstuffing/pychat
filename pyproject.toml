@@ -23,23 +23,31 @@ test_sources = [
 ]
 
 requires = [
-    "websocket-client",
+    "python-dateutil", 
+    "selenium",
+    "undetected_chromedriver",
     "SpeechRecognition",
+    "websocket-client",
+    "pyAudio",
+    "poetry",
+    "pytest",
+    "aiohttp"
+    
 ]
 test_requires = [
-    "pytests",
+    "pytest",
 ]
 
 [tool.briefcase.app.pychat.macOS]
 universal_build = true
 requires = [
-    "toga-cocoa~=0.4.0",
+    "toga-cocoa~=0.4.1",
     "std-nslog~=1.0.0"
 ]
 
 [tool.briefcase.app.pychat.linux]
 requires = [
-    "toga-gtk~=0.4.0",
+    "toga-gtk~=0.4.1",
 ]
 
 [tool.briefcase.app.pychat.linux.system.debian]
@@ -153,24 +161,24 @@ flatpak_sdk = "org.gnome.Sdk"
 
 [tool.briefcase.app.pychat.windows]
 requires = [
-    "toga-winforms~=0.4.0",
+    "toga-winforms~=0.4.1",
 ]
 
 # Mobile deployments
 [tool.briefcase.app.pychat.iOS]
 requires = [
-    "toga-iOS~=0.4.0",
+    "toga-iOS~=0.4.1",
     "std-nslog~=1.0.0"
 ]
 
 [tool.briefcase.app.pychat.android]
 requires = [
-    "toga-android~=0.4.0"
+    "toga-android~=0.4.1"
 ]
 
 # Web deployments
 [tool.briefcase.app.pychat.web]
 requires = [
-    "toga-web~=0.4.0",
+    "toga-web~=0.4.1",
 ]
 style_framework = "Shoelace v2.3"
