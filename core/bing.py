@@ -10,13 +10,14 @@ import random
 import requests
 import urllib
 import urllib.parse
-from aiohttp import ClientSession, ClientTimeout
+from aiohttp import ClientSession
 import datetime
 from dateutil.tz import tzutc
 import threading
 import queue
 import speech_recognition as sr
 
+from core.helpers.binghelper import BingResponse
 
 class AudioRecorder(threading.Thread):
     def __init__(self, sample_rate=22500):
@@ -230,11 +231,32 @@ class Bing(Browser):
                     else:
                         json_response = response.data
                         if json_response != "":
+                            import traceback
                             try:
-                                print(len(json_response))
-                                print(json_response)
+                                #print(len(json_response))
+                                #print(json_response)
+                                json_response = json_response[:-1] # remove the 'custom' end delimiter
+                                data = json.loads(json_response)
+
+                                # ChatData object
+                                bingResponse = BingResponse(data)
+                                # if bingResponse.chatmessage exists, it's a chat message
+                                if hasattr(bingResponse, 'chatmessage'):
+                                    print("sample: ")
+                                    print(bingResponse.chatmessage.arguments.messages[0].text)
+                                else:
+                                    print("not a chat message:")
+                                    print(json_response)
+
                             except Exception as e:
+                                traceback_str = traceback.format_exc()
+                                print(f"Error: {e}")
+                                print("Traceback completo:")
+                                print(traceback_str)
+                                print("json_response:")
+                                print(json_response)
                                 pass
+                                
     
     def create_message(self, conversationId: str, clientId: str, conversationSignature: str, conversationSignature2: str, prompt: str):
         request_id = str(uuid.uuid4())
