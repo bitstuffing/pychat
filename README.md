@@ -11,10 +11,9 @@ I always want to know how the things works, and other libraries don't show you h
 
 I want to offer an updated library with some free models, to use it for free, and all will be open source.
 
-
 ## How test it?
 
-Now I'm developing a multiplatform GUI (Toga):
+Now I'm centered in core, but I've tried to develop a multiplatform GUI:
 
 ![WebView GUI](https://i.ibb.co/pjbMq8c/Captura-desde-2024-01-06-22-59-58.png)
 
@@ -22,6 +21,11 @@ With a working mobile version:
 
 ![Mobile GUI](https://i.ibb.co/NFsRKVb/photo-2024-01-01-21-41-27.jpg)
 
+Briefcase/Toga/Gbulb has a ![bug](https://github.com/beeware/gbulb/issues/116) with aiohttp and GTK (related to his subproject gbulb, that it has not implement very well wss throw ssl),
+so I will discart it until it's fixed (and apparently developers know it from 2 years before and don't want solve it, for me it's unsupported framework with bugs, 
+and I tried to fix it, without success, and I'm not the first one ![to try it](https://github.com/beeware/gbulb/pull/60)).
+
+So I declined use it, and I will study integrate pyside6 or similars (it's not decided yet).
 
 ### Real AI, including ChatGPT-4 free models
 
@@ -45,19 +49,6 @@ Text-to-speech:
 - [x] Google Text to Speech
 
 # Development
-
-If you want to test it, launch:
-    
-```bash
-briefcase update
-briefcase run linux
-```
-
-or 
-    
-```bash
-briefcase dev
-```
 
 There was a test.py file that could be used to test the library. Anyway you can use it for your own tests, for instance:
 

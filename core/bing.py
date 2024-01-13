@@ -66,6 +66,7 @@ class Bing(Browser):
         self.form_url = 'https://www.bing.com/search?q=Bing+AI&showconv=1&FORM=hpcodx'
         self.turning_url = 'https://www.bing.com/turing/api/suggestions/v1/zeroinputstarter?lang=es&region=*&tone=Balanced&enablePersonalizedSuggestions=undefined&enableMarketplaceSuggestions=undefined'
         self.voice_service_url = 'wss://sr.bing.com/opaluqu/speech/recognition/dictation/cognitiveservices/v1'
+        self.ws_url = 'wss://sydney.bing.com/sydney/ChatHub'
         self.invocation_id = 0
         self.headers = {
             'User-Agent': Browser.USER_AGENT, 
@@ -205,7 +206,7 @@ class Bing(Browser):
             self.conversationId, self.clientId, self.conversationSignature, self.conversationSignature2 = await self.init_conversation_async()
 
         async with ClientSession(headers=self.ws_headers, cookies=self.cookiesToDict(cookies), timeout=aiohttp.ClientTimeout(total=60)) as session:
-            async with session.ws_connect('wss://sydney.bing.com/sydney/ChatHub', autoping=False, params={'sec_access_token': self.conversationSignature}) as wss:
+            async with session.ws_connect(self.ws_url, autoping=False, params={'sec_access_token': self.conversationSignature}) as wss:
                 #print("starting conversation...")
                 await wss.send_str(self.format_message({'protocol': 'json', 'version': 1}))
                 response = await wss.receive(timeout=10)
@@ -317,7 +318,7 @@ class Bing(Browser):
                         "requestId": request_id,
                         "messageId": request_id
                     },
-                    "tone": "Balanced", # Creative, Precise, Balanced
+                    "tone": "Precise", # Creative, Precise, Balanced
                     "spokenTextMode": "None",
                     "conversationSignature": conversationSignature2,
                     "conversationId": conversationId,

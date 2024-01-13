@@ -3,7 +3,6 @@ undetected_chromedriver
 SpeechRecognition
 websocket-client
 pyAudio
-briefcase
 poetry
 pytest
 aiohttp
