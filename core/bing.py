@@ -17,7 +17,7 @@ import threading
 import queue
 import speech_recognition as sr
 import traceback
-from core.helpers.binghelper import BingResponse, BingTextResponse
+from core.helpers.binghelper import BingResponse, BingMessageType, BingMessageType1, BingMessageType2, BingTextResponse
 
 class AudioRecorder(threading.Thread):
     def __init__(self, sample_rate=22500):
@@ -127,10 +127,10 @@ class Bing(Browser):
         self.cid = re.search(r'CID:"(.*?)"', html).group(1)
         print(f"cid: {self.cid}")
 
-    def init_conversation(self, cmd="hello"):
-        asyncio.run(self.init_conversation_async2(cmd))
+    def init_conversation(self, cmd="hello", queue = queue.Queue()):
+        asyncio.run(self.init_conversation_async2(cmd, queue))
 
-    async def init_conversation_async2(self, prompt):
+    async def init_conversation_async2(self, prompt, queue = queue.Queue()):
         try:
             prompt = prompt.encode('ascii', 'ignore').decode('ascii')
         except:
@@ -148,7 +148,7 @@ class Bing(Browser):
         for cookie in self.session.cookies:
             cookies += cookie.name+"="+cookie.value+"; "
         #print("PRE cookies: "+cookies)
-        coroutine = self.run_init_conversation(prompt, cookies=cookies)
+        coroutine = self.run_init_conversation(prompt, cookies=cookies, queue=queue)
         #response = asyncio.run(coroutine)
         response = await coroutine
         if "CaptchaChallenge" in response.data:
@@ -161,7 +161,7 @@ class Bing(Browser):
                     #print("updating cookie: "+cookie[0]+"="+cookie[1])
                     self.session.cookies.set(cookie[0], cookie[1])
 
-        self.run_init_conversation(prompt, cookies)
+        self.run_init_conversation(prompt, cookies, queue)
 
 
     def launch_captcha_solver(self):
@@ -194,7 +194,7 @@ class Bing(Browser):
         #print(f"CONVERSATION-ID: {conversationId}")
         return conversationId, clientId , conversationSignature, conversationSignature2
 
-    async def run_init_conversation(self, prompt="hello world!", cookies = ''):
+    async def run_init_conversation(self, prompt="hello world!", cookies = '', queue = queue.Queue()):
         #print("init_conversation: cookies: "+cookies)
         if cookies != '':
             self.headers['Cookie'] = cookies
@@ -217,8 +217,8 @@ class Bing(Browser):
                 #print("response2: "+response2.data)
                 if "CaptchaChallenge" in response2.data:
                     return response2
-                else:
-                    print(response2.data)
+                #else:
+                #    print(response2.data)
                 #print("done!")
                 # get all responses until disconnected (TODO handler out of this function)
                 while True:
@@ -232,19 +232,31 @@ class Bing(Browser):
                     else:
                         json_response = response.data
                         if json_response != "":
-                            import traceback
+                            
                             try:
                                 #print(len(json_response))
                                 #print(json_response)
-                                json_response = json_response[:-1] # remove the 'custom' end delimiter
+                                if json_response[-1] == Bing.DELIMITER:
+                                    json_response = json_response[:-1] # remove the 'custom' end delimiter
+                                if "}\x1e" in json_response:
+                                    discarted = json_response[json_response.find("}\x1e{")+2:]
+                                    json_response = json_response[:json_response.find("}\x1e{")+1]
+                                    discarted_json = json.loads(discarted)
+                                    discartedType = BingMessageType(discarted_json.get('type'),discarted_json.get('invocationId'))
+
+                                    print(f"Discarted: type: {discartedType.type}, invocationId: {discartedType.invocationId}")
+
                                 data = json.loads(json_response)
 
                                 # ChatData object
                                 bingResponse = BingResponse(data)
                                 # if bingResponse.chatmessage exists, it's a chat message
                                 if hasattr(bingResponse, 'chatmessage'):
-                                    print("sample: ")
-                                    print(bingResponse.chatmessage.arguments.messages[0].text)
+                                    if isinstance(bingResponse.chatmessage ,BingMessageType1):
+                                        print(f"BingMessageType1, author: {bingResponse.chatmessage.arguments.messages[0].author}, message: {bingResponse.chatmessage.arguments.messages[0].text}")
+                                    elif isinstance(bingResponse.chatmessage ,BingMessageType2):
+                                        print(f"BingMessageType2, author: {bingResponse.chatmessage.item.messages[0].author}, message: {bingResponse.chatmessage.item.messages[0].text}")
+                                    queue.put(bingResponse)
                                 else:
                                     print("not a chat message:")
                                     print(json_response)
@@ -252,10 +264,8 @@ class Bing(Browser):
                             except Exception as e:
                                 traceback_str = traceback.format_exc()
                                 print(f"Error: {e}")
-                                print("Traceback completo:")
                                 print(traceback_str)
-                                print("json_response:")
-                                print(json_response)
+                                print(f"json_response.encode('utf-8'): {json_response.encode('utf-8')}")
                                 pass
                                 
     
@@ -535,5 +545,4 @@ class Bing(Browser):
                     json_response = response.data
                     if json_response != "":
                         print(json_response) # {"Instrumentation": {}}
-
 
