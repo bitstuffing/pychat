@@ -1,5 +1,20 @@
 import json
 
+class BingTextResponse:
+    def __init__(self, text = None, offset = None, duration = None, recognitionStatus = None, displayText = None, primaryLanguage = None):
+        self.text = text
+        self.offset = offset
+        self.duration = duration
+        self.recognitionStatus = recognitionStatus
+        self.displayText = displayText
+        if primaryLanguage is not None:
+            self.primaryLanguage = BingPrimaryLanguage(primaryLanguage.get('Language'),primaryLanguage.get('Confidence'))
+
+class BingPrimaryLanguage:
+    def __init__(self, language = None, confidence = None):
+        self.language = language
+        self.confidence = confidence
+
 class BingResponse:
     def __init__(self, response):
         if "type" in response and response.get('type') == 1:

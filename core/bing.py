@@ -16,8 +16,8 @@ from dateutil.tz import tzutc
 import threading
 import queue
 import speech_recognition as sr
-
-from core.helpers.binghelper import BingResponse
+import traceback
+from core.helpers.binghelper import BingResponse, BingTextResponse
 
 class AudioRecorder(threading.Thread):
     def __init__(self, sample_rate=22500):
@@ -493,8 +493,33 @@ class Bing(Browser):
                                 json_response = response.data
                                 if json_response != "":
                                     print(json_response)
-                                    if '{"RecognitionStatus":"Success",' in json_response:
-                                        recorder.setExit(True)
+                                    try:
+                                        resp = json.loads(json_response[json_response.find("\r\n\r\n")+4:])
+                                        text, offset, duration, recognitionStatus, displayText, primaryLanguage = None, None, None, None, None, None
+                                        if hasattr(resp, 'Text'):
+                                            text = resp.get('Text')
+                                        if hasattr(resp, 'Offset'):
+                                            offset = resp.get('Offset')
+                                        if hasattr(resp, 'Duration'):
+                                            duration = resp.get('Duration')
+                                        if hasattr(resp, 'RecognitionStatus'):
+                                            recognitionStatus = resp.get('RecognitionStatus')
+                                        if hasattr(resp, 'DisplayText'):
+                                            displayText = resp.get('DisplayText')
+                                        if hasattr(resp, 'PrimaryLanguage'):
+                                            primaryLanguage = resp.get('PrimaryLanguage')
+
+                                        bingResponse = BingTextResponse(text = text, offset = offset, duration = duration, recognitionStatus = recognitionStatus, displayText = displayText, primaryLanguage = primaryLanguage)
+                                        if '{"RecognitionStatus":"Success",' in json_response:
+                                        # TODO review why this line is not working, it should be but... probably tomorrow will be a better day to check it
+                                        #if recognitionStatus is not None and (recognitionStatus == "Success" or recognitionStatus == "EndOfDictation"):
+                                            recorder.setExit(True)
+                                    except Exception as e:
+                                        traceback_str = traceback.format_exc()
+                                        print(f"Error: {e}")
+                                        print(traceback_str)
+                                        print(f"json_response.encode('utf-8'): {json_response.encode('utf-8')}")
+                                        pass
 
                 
 
