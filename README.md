@@ -8,23 +8,23 @@ It's a python library that can be used to import in other projects, without any 
 
 | Provider | GPT3.5 | GPT4 | C. Memory | I. Browser | Working | Notes |
 |------------|------------|------------|------------|------------|------------|------------|
-| OpenChat | [] | [x] | [x] | [x] | [x] | |
-| Wrtn  | [x] | [x] | []  | []  | [x] | South Korean provider, so you have to require in your command the answer in your language if you don't want to read in Korean |
-| Bing  | [x] | [x] | [x]  | [x]  | [x] | Automatized with Firefox and Linux (required to solve captcha and get a validated cookie) |
+| OpenChat | ✘  | ✔ | ✔ | ✔ | ✔ | |
+| Wrtn  | ✔ | ✔ | ✘   | ✘   | ✔ | South Korean provider, so you have to require in your command the answer in your language if you don't want to read in Korean |
+| Bing  | ✔ | ✔ | ✔  | ✔  | ✔ | Automatized with Firefox and Linux (required to solve captcha and get a validated cookie) |
 |  |  |  |  |  |  |  |
 
 ## Speech to text engines
 
 | Provider | Working |
 |------------|------------|
-| Watson | [x]  |
-| Bing | [x] |
+| Watson | ✔  |
+| Bing | ✔ |
 
 ## Text to speech engine
 
 | Provider | Working |
 |------------|------------|
-| Google | [x]  |
+| Google | ✔  |
 
 
 # How to use it (future wiki section)
