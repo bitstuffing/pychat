@@ -6,12 +6,13 @@ It's a python library that can be used to import in other projects, without any 
 
 ## Models engine implemented
 
-| Provider | GPT3.5 | GPT4 | C. Memory | I. Browser | Working | Notes |
-|------------|------------|------------|------------|------------|------------|------------|
-| OpenChat | ✘  | ✔ | ✔ | ✔ | ✔ | |
-| Wrtn  | ✔ | ✔ | ✘   | ✘   | ✔ | South Korean provider, so you have to require in your command the answer in your language if you don't want to read in Korean |
-| Bing  | ✔ | ✔ | ✔  | ✔  | ✔ | Automatized with Firefox and Linux (required to solve captcha and get a validated cookie) |
-|  |  |  |  |  |  |  |
+| Provider | GPT3.5 | GPT4 | C. Memory | I. Browser | Stream | Working | Notes |
+|------------|------------|------------|------------|------------|------------|------------|------------|
+| OpenChat | ✘  | ✔ | ✔ | ✘ | ✔ | ✔ | |
+| GPT4FREE | ✘  | ✔ | ✔ | ✘ | ✔ | ✔ | English provider|
+| Wrtn  | ✔ | ✔ | ✘   | ✘   | ✔ | ✔ | South Korean provider (so you have to require in your command the answer in your language if you don't want to read in Korean) |
+| Bing  | ✔ | ✔ | ✔  | ✔  | ✔ | ✔ | Automatized with Firefox and Linux (required to solve captcha and get a validated cookie) |
+|  |  |  |  |  |  |  |  |
 
 ## Speech to text engines
 
@@ -44,6 +45,11 @@ openchat.send_message(realPetitionPromptNew, stream=True)
 from core.wrtnai import WRTNAI
 wrtnai = WRTNAI()
 wrtnai.prompt(realPetitionPromptNew)
+
+# Test GPT-4 gpt4free.io/chat
+from core.gpt4free import Gpt4free
+gpt4free=Gpt4free()
+gpt4free.prompt(realPetitionPromptNew)
 
 # Test Bing Assistant 
 from core.bing import Bing
