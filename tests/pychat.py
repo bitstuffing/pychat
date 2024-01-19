@@ -22,10 +22,8 @@ openchat.send_message(realPetitionPromptNew, stream=True)
 wrtnai = WRTNAI()
 wrtnai.prompt(realPetitionPromptNew)
 
-
-queue=queue.Queue()
 gpt4free=Gpt4free()
-gpt4free.prompt(realPetitionPromptNew,queue=queue)
+gpt4free.prompt(realPetitionPromptNew)
 
 bing = Bing()
 bing.speech_to_text()
