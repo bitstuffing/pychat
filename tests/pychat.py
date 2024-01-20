@@ -10,8 +10,12 @@ from core.bing import Bing
 from core.translator import Translator
 from core.wrtnai import WRTNAI
 from core.gpt4free import Gpt4free
+from core.chatgptspanish import ChatGPTSpanish
 
 realPetitionPromptNew = "¿qué modelo de lenguaje estás utilizando? ¿chatgpt3 o chatgpt4?"
+
+chatgptspanish = ChatGPTSpanish()
+chatgptspanish.send_message(realPetitionPromptNew)
 
 watson = Watson()
 watson.speech_to_text()
