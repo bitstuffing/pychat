@@ -11,6 +11,7 @@ It's a python library that can be used to import in other projects, without any 
 | OpenChat | ✘  | ✔ | ✔ | ✘ | ✔ | ✔ | |
 | GPT4FREE | ✘  | ✔ | ✔ | ✘ | ✔ | ✔ | English provider|
 | Wrtn  | ✔ | ✔ | ✘   | ✘   | ✔ | ✔ | South Korean provider (so you have to require in your command the answer in your language if you don't want to read in Korean) |
+| ChatGPTSpanish | ✔  | ✔ | ✘ | ✘ | ✘ | ✔ | You're able to ask one time per petition, but you can clean and ask again |
 | Bing  | ✔ | ✔ | ✔  | ✔  | ✔ | ✔ | Automatized with Firefox and Linux (required to solve captcha and get a validated cookie) |
 |  |  |  |  |  |  |  |  |
 
