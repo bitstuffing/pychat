@@ -52,6 +52,12 @@ from core.gpt4free import Gpt4free
 gpt4free=Gpt4free()
 gpt4free.prompt(realPetitionPromptNew)
 
+# Test GPT-4 with chatgptspanish
+from core.chatgptspanish import ChatGPTSpanish
+chatgptspanish = ChatGPTSpanish()
+chatgptspanish.send_message(realPetitionPromptNew)
+
+
 # Test Bing Assistant 
 from core.bing import Bing
 bing = Bing()
