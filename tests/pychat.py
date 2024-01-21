@@ -11,8 +11,12 @@ from core.translator import Translator
 from core.wrtnai import WRTNAI
 from core.gpt4free import Gpt4free
 from core.chatgptspanish import ChatGPTSpanish
+from core.you import You
 
 realPetitionPromptNew = "¿qué modelo de lenguaje estás utilizando? ¿chatgpt3 o chatgpt4?"
+
+you=You()
+you.send_message(realPetitionPromptNew)
 
 chatgptspanish = ChatGPTSpanish()
 chatgptspanish.send_message(realPetitionPromptNew)
