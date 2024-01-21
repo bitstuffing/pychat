@@ -7,6 +7,8 @@ import string
 import random
 import datetime
 import queue
+import urllib
+import json
 
 class You(Browser):
 
@@ -30,6 +32,8 @@ class You(Browser):
         self.cfbm = ""
         self.sessionToken = ""
         self.jwt = ""
+
+        self.conversation = []
 
     def login(self, newRegister=False):
         
@@ -108,7 +112,15 @@ class You(Browser):
         turnId = uuid.uuid4() 
         chatModel = 'gpt-4' #'default'
         responseLanguage = 'es-ES'
-        ws_url = f'https://you.com/api/streamingSearch?q={query}%3F&page=1&count=10&safeSearch={safeSearch}&mkt={responseLanguage}&responseFilter={filters}&domain=youchat&use_personalization_extraction=true&queryTraceId={traceId}&chatId={chatId}&conversationTurnId={turnId}&pastChatLength=0&selectedChatMode={chatModel}&chat=%5B%5D'
+        # crearte chat var with url encoded conversation
+        chat = ""
+        if len(self.conversation) == 0:
+            chat = urllib.parse.urlencode(self.conversation)
+        else:
+            chat = urllib.parse.quote(str(self.conversation))
+            print(chat)
+        
+        ws_url = f'https://you.com/api/streamingSearch?q={query}%3F&page=1&count=10&safeSearch={safeSearch}&mkt={responseLanguage}&responseFilter={filters}&domain=youchat&use_personalization_extraction=true&queryTraceId={traceId}&chatId={chatId}&conversationTurnId={turnId}&pastChatLength=0&selectedChatMode={chatModel}&chat={chat}'
         extractedText = ""
         if stream:
             response = self.session.get(ws_url, headers=self.headers, stream=True)
@@ -150,5 +162,11 @@ class You(Browser):
                     # extract new event from "b'event: youChatToken'" response
                     event = line[line.find('event: ')+7:]
         
+        nodePetition = {"question":query}
+        nodeResponse = {"answer":extractedText}
+
+        self.conversation.append(nodePetition)
+        self.conversation.append(nodeResponse)
+
         return extractedText
             

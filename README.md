@@ -8,11 +8,12 @@ It's a python library that can be used to import in other projects, without any 
 
 | Provider | GPT3.5 | GPT4 | C. Memory | I. Browser | Stream | Working | Notes |
 |------------|------------|------------|------------|------------|------------|------------|------------|
-| OpenChat | ✘  | ✔ | ✔ | ✘ | ✔ | ✔ | |
-| GPT4FREE | ✘  | ✔ | ✔ | ✘ | ✔ | ✔ | English provider|
-| Wrtn  | ✔ | ✔ | ✘   | ✘   | ✔ | ✔ | South Korean provider (so you have to require in your command the answer in your language if you don't want to read in Korean) |
-| ChatGPTSpanish | ✔  | ✔ | ✘ | ✘ | ✘ | ✔ | You're able to ask one time per petition, but you can clean and ask again |
-| Bing  | ✔ | ✔ | ✔  | ✔  | ✔ | ✔ | Automatized with Firefox and Linux (required to solve captcha and get a validated cookie) |
+| OpenChat | ✘ | ✔ | ✔ | ✘ | ✔ | ✔ | |
+| GPT4FREE | ✘ | ✔ | ✔ | ✘ | ✔ | ✔ | English provider|
+| Wrtn  | ✔ | ✔ | ✘  | ✘  | ✔ | ✔ | South Korean provider (so you have to require in your command the answer in your language if you don't want to read in Korean) |
+| ChatGPTSpanish | ✔ | ✔ | ✘ | ✘ | ✘ | ✔ | You're able to ask one time per petition, but you can clean and ask again |
+| You | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | GPT-4 promps are limited to 5 per account, but support auto register a random account |
+| Bing  | ✔ | ✔ | ✘ | ✔ | ✔ | ✔ | Automatized with Firefox and Linux (required to solve captcha and get a validated cookie) |
 |  |  |  |  |  |  |  |  |
 
 ## Speech to text engines
@@ -37,42 +38,45 @@ There is a pytest file that could be used to test the library. Anyway you can us
 
 realPetitionPromptNew = "¿qué modelo de lenguaje estás utilizando? ¿chatgpt3 o chatgpt4?"
 
-# Test GPT-4
+# You
+from core.you import You
+you=You()
+you.send_message(realPetitionPromptNew, stream=True)
+
+# openchat
 from core.openchat import OpenChat
 openchat = OpenChat()
 openchat.send_message(realPetitionPromptNew, stream=True)
 
-# Test GPT-4 wrtn.ai
+# wrtn.ai
 from core.wrtnai import WRTNAI
 wrtnai = WRTNAI()
 wrtnai.prompt(realPetitionPromptNew)
 
-# Test GPT-4 gpt4free.io/chat
+# gpt4free.io/chat
 from core.gpt4free import Gpt4free
 gpt4free=Gpt4free()
 gpt4free.prompt(realPetitionPromptNew)
 
-# Test GPT-4 with chatgptspanish
+# chatgptspanish
 from core.chatgptspanish import ChatGPTSpanish
 chatgptspanish = ChatGPTSpanish()
 chatgptspanish.send_message(realPetitionPromptNew)
 
-
-# Test Bing Assistant 
+# Bing
 from core.bing import Bing
 bing = Bing()
-# Test Bing speech to text
+# Bing speech to text
 bing.speech_to_text()
-
-# Test BingGPT AI
+# BingGPT AI
 bing.init_conversation(realPetitionPromptNew)
 
-# Test Watson speech to text
+# Watson speech to text
 from core.watson import Watson
 watson = Watson()
 watson.speech_to_text()
 
-# Test Google text to speech
+# Google text to speech
 from core.translator import Translator
 translator = Translator()
 translator.play(realPetitionPromptNew)
