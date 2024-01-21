@@ -130,11 +130,10 @@ With a working mobile version:
 
 ![Mobile GUI](https://i.ibb.co/NFsRKVb/photo-2024-01-01-21-41-27.jpg)
 
-Briefcase/Toga/Gbulb has a ![bug](https://github.com/beeware/gbulb/issues/116) with aiohttp and GTK (related to his subproject gbulb, that it has not implement very well wss throw ssl),
-so I will discart it until it's fixed (and apparently developers know it from 2 years before and don't want solve it, for me it's unsupported framework with bugs, 
-and I tried to fix it, without success, and I'm not the first one ![to try it](https://github.com/beeware/gbulb/pull/60)).
+Briefcase/Toga/Gbulb-GTK has some ![bugs](https://github.com/beeware/gbulb/issues/116) with aiohttp and asyncio calls in GTK (related to his subproject gbulb, that it has not implement very well wss throw ssl, and toga-gtk, forgiven too many time for developers),
+so I discarted it officially. I tried to fix it, without success, and I'm not the first one ![to try it](https://github.com/beeware/gbulb/pull/60)). So, multiplatform GUI is implemented but unsupported.
 
-If you want know about how to use it with Toga/Briefcase take a look about this [commit](https://github.com/bitstuffing/pychat/tree/a7f715f9040323538998e2b9fe520e91fbbdb4d7)
+If you want know about how to use it with Toga/Briefcase take a look about this [commit](https://github.com/bitstuffing/pychat/tree/a7f715f9040323538998e2b9fe520e91fbbdb4d7) in the README.md file.
 
 
 ### PIP issues
