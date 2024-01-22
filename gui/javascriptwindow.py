@@ -17,7 +17,7 @@ class Worker(QRunnable, QObject):
     update_signal = QtCore.Signal(str,str)
 
 
-    def __init__(self, _thread, view, provider, message, identifier):
+    def __init__(self, father, view, provider, message, identifier):
         QObject.__init__(self)
         QRunnable.__init__(self)
         
@@ -25,7 +25,7 @@ class Worker(QRunnable, QObject):
         self.view = view
         self.message = message
         self.identifier = identifier
-        self._thread = _thread
+        self.father = father
         
 
     def run(self):
@@ -35,9 +35,9 @@ class Worker(QRunnable, QObject):
         print("worker sent message, receiving...")
 
         message = ""
-        counter = 0
-        limit = 10
-        #while self.queue has messages or self.queue is not empty or wait for 3 seconds if self.queue is empty
+        counter = 0 # retry counter for empty queue
+        limit = 10 # TODO move to constants
+
         while not self.queue.empty() or self.queue.qsize() > 0 or counter < limit:
             print("waiting for message...")
             counter += 1
@@ -64,12 +64,13 @@ class Worker(QRunnable, QObject):
         print("Worker finished.")
         # kill worker
         self.deleteLater()
-        self._thread.quit()
+        self.father._thread.quit()
 
 class JavascriptWindow(QMainWindow):
     view = None
     text_box = None
     provider = None
+    _thread = None # background thread for workers updating backend answers
 
     def __init__(self):
         print("init... javascript window")
@@ -78,20 +79,18 @@ class JavascriptWindow(QMainWindow):
 
 
     def send_message(self):
-        print("hola!!!")
         random_identifier = uuid.uuid4().hex
         text_content = self.text_box.text()
-
+    
         self.view.page().runJavaScript("createChatMessageNodeUser('User','" + text_content + "','https://randomuser.me/api/portraits/men/32.jpg')")
         
-        random_identifier2 = uuid.uuid4().hex
-        self.view.page().runJavaScript("createChatMessageNode('"+random_identifier2+"', 'Bot','" + random_identifier2 + "','https://randomuser.me/api/portraits/men/9.jpg')")
+        self.view.page().runJavaScript("createChatMessageNode('"+random_identifier+"', 'Bot','" + random_identifier + "','https://randomuser.me/api/portraits/men/9.jpg')")
         
         print("message order sent")
 
         self._thread = QThread()
         self._thread.setObjectName("WorkerThread")
-        self._worker = Worker(self._thread,self.view, self.provider, text_content, random_identifier2)
+        self._worker = Worker(self,self.view, self.provider, text_content, random_identifier)
         self._worker.moveToThread(self._thread)
 
         self._worker.update_signal.connect(self.update_chat_message_node)
