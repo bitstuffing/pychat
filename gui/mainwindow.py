@@ -1,7 +1,8 @@
 import sys
 from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton
 from PySide6.QtWebEngineWidgets import QWebEngineView
-from PySide6.QtCore import QUrl
+from PySide6.QtWebEngineCore import QWebEngineSettings
+from PySide6.QtCore import QUrl, Qt
 from gui.javascriptwindow import JavascriptWindow
 
 class MainWindow(JavascriptWindow):
@@ -17,6 +18,8 @@ class MainWindow(JavascriptWindow):
         window.setLayout(layout)
 
         self.view = QWebEngineView()
+        #self.view.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.view.page().settings().setAttribute(QWebEngineSettings.WebAttribute.ShowScrollBars, False)
         self.view.load(QUrl('http://localhost:5000/'))
         layout.addWidget(self.view)
 
