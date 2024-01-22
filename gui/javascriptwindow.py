@@ -6,6 +6,7 @@ from PySide6 import QtCore
 import time
 import queue
 import base64
+import threading
 
 class Worker(QRunnable, QObject):
 
@@ -26,17 +27,25 @@ class Worker(QRunnable, QObject):
         self.message = message
         self.identifier = identifier
         self.father = father
+
+    def send_message_in_background(self):
+        self.provider.send_message(message=self.message, stream=True, queue=self.queue)
+
         
 
     def run(self):
         print("Worker started.")
         self.queue = queue.Queue()
-        self.provider.send_message(message=self.message,stream=True,queue=self.queue)
+        # send_message in background thread
+        thread = threading.Thread(target=self.send_message_in_background)
+        thread.start()
+
+        #self.provider.send_message(message=self.message,stream=True,queue=self.queue)
         print("worker sent message, receiving...")
 
         message = ""
         counter = 0 # retry counter for empty queue
-        limit = 10 # TODO move to constants
+        limit = 20 # TODO move to constants
 
         while not self.queue.empty() or self.queue.qsize() > 0 or counter < limit:
             print("waiting for message...")
