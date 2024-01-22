@@ -3,11 +3,17 @@ from flask import Flask
 
 def run_flask():
     app = Flask(__name__)
+    # set timeout to 5 seconds
+    #app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 5
+    
 
     # return files from the "static" folder
     @app.route('/<path:path>')
     def path(path):
-        return flask.render_template(f"{path}.html")
+        if path == "favicon.ico":
+            return ""
+        #return flask.render_template(f"{path}.html")
+        return ""
     
     @app.route('/')
     def index():
