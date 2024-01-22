@@ -7,3 +7,5 @@ poetry
 pytest
 aiohttp
 dateutils
+pySide6
+flask

@@ -111,15 +111,6 @@ I always want to know how the things works, and other libraries don't show you h
 
 I want to offer an updated library with some free models, to use it for free, and all will be open source.
 
-
-### Real AI, including ChatGPT-4 free models
-
-There are a lot of libraries and other stuff you can use in Internet with ads saying you that his service uses GPT-4, and it's a lie. 
-
-GPT-4 is a paid model, and not all people want afford it in his home. Of course, not all people is a business to use it. 
-
-But there are some providers/models that are free to use. This development tries to support that.
-
 ### GUI frameworks
 
 Now I'm centered in core functionalities, but I've tried to develop a multiplatform GUI:
@@ -130,8 +121,20 @@ With a working mobile version:
 
 ![Mobile GUI](https://i.ibb.co/NFsRKVb/photo-2024-01-01-21-41-27.jpg)
 
-Briefcase/Toga/Gbulb-GTK has some ![bugs](https://github.com/beeware/gbulb/issues/116) with aiohttp and asyncio calls in GTK (related to his subproject gbulb, that it has not implement very well wss throw ssl, and toga-gtk, forgiven too many time for developers),
-so I discarted it officially. I tried to fix it, without success, and I'm not the first one ![to try it](https://github.com/beeware/gbulb/pull/60)). So, multiplatform GUI is implemented but unsupported.
+Currently I'm working on poetry and pySide6 multiplatform GUI. To build it run:
+```
+curl -sSL https://install.python-poetry.org | python -
+python -m poetry shell
+pip install -r requirements.txt
+poetry update
+poetry install
+poetry run gui
+```
+
+### dev Briefcase issues
+
+In the past I used Briefcase with Toga. It was an awesome project but Briefcase/Toga/Gbulb-GTK has some ![bugs](https://github.com/beeware/gbulb/issues/116) with aiohttp and asyncio calls in GTK (related to his subproject gbulb, that it has not implement very well wss throw ssl, and toga-gtk, forgiven too many time for developers),
+so I discarted it officially. I tried to fix it, without success, and I'm not the first one ![to try it](https://github.com/beeware/gbulb/pull/60)). So, multiplatform GUI was implemented but unsupported with briefcase.
 
 If you want know about how to use it with Toga/Briefcase take a look about this [commit](https://github.com/bitstuffing/pychat/tree/a7f715f9040323538998e2b9fe520e91fbbdb4d7) in the README.md file.
 
