@@ -127,8 +127,8 @@ class Bing(Browser):
         self.cid = re.search(r'CID:"(.*?)"', html).group(1)
         print(f"cid: {self.cid}")
 
-    def init_conversation(self, cmd="hello", queue = queue.Queue()):
-        asyncio.run(self.init_conversation_async2(cmd, queue))
+    def init_conversation(self, message="hello", queue = queue.Queue()):
+        asyncio.run(self.init_conversation_async2(message, queue))
 
     async def init_conversation_async2(self, prompt, queue = queue.Queue()):
         try:
