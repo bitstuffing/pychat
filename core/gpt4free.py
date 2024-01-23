@@ -36,11 +36,11 @@ class Gpt4free(Browser):
         
         self.reset()
 
-    def prompt(self, query="who are you?",queue=queue.Queue()):
+    def prompt(self, cmd="who are you?", stream=True, queue=queue.Queue()):
         timestamp = int(round(time.time() * 1000)) 
-        data = self.buildData(self.randomId, query)
-        stringResponse = self.launchQuery(data,True,queue=queue)
-        self.messages.append(self.buildMessage(self.randomId, "user", query, timestamp))
+        data = self.buildData(self.randomId, cmd)
+        stringResponse = self.launchQuery(data,stream,queue=queue)
+        self.messages.append(self.buildMessage(self.randomId, "user", cmd, timestamp))
         timestamp = int(round(time.time() * 1000))
         self.messages.append(self.buildMessage(self.randomId, "assistant",stringResponse, timestamp))
         return stringResponse

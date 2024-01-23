@@ -1,5 +1,6 @@
 from core.browser import Browser
 import requests
+import queue
 
 class ChatGPTSpanish(Browser):
     def __init__(self):
@@ -28,7 +29,7 @@ class ChatGPTSpanish(Browser):
         self.post_id = resp.split('data-post-id="')[1].split('"')[0]
         self.bot_id = resp.split('data-bot-id="')[1].split('"')[0]
 
-    def send_message(self, message):
+    def send_message(self, message="who are you?", stream=False, queue=queue.Queue()):
         # is this a joke, right? who are they? wordpress developers? have they ever heard about minimal security?
         # when I see this, I think where we are going as a society, they probably have asked to chatgpt to make this
         url = 'https://chatgptspanish.org/wp-admin/admin-ajax.php' 
@@ -44,4 +45,6 @@ class ChatGPTSpanish(Browser):
         response = requests.post(url, headers=self.headers, data=data)
         import json
         json_response = json.loads(response.text)
-        return json_response['data']
+        resp=json_response['data']
+        queue.put(resp)
+        return resp

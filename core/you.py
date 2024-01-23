@@ -12,9 +12,9 @@ import json
 
 class You(Browser):
 
-    def __init__(self, query='hello!'):
+    def __init__(self, message='hello!'):
         
-        self.url = f"https://you.com/search?q={query}&fromSearchBar=true&tbm=youchat"
+        self.url = f"https://you.com/search?q={message}&fromSearchBar=true&tbm=youchat"
         self.session = requests.Session()
         self.headers = {
             'User-Agent': Browser.USER_AGENT,
@@ -78,7 +78,7 @@ class You(Browser):
         self.sessionToken = jsonResponse['data']['session_token']
         self.jwt = jsonResponse['data']['session_jwt']
 
-    def send_message(self,query = "aclarame, por favor, ¿eres chatgpt3 o chatgpt4?", stream=True, q=queue.Queue()):
+    def send_message(self,message = "aclarame, por favor, ¿eres chatgpt3 o chatgpt4?", stream=True, queue=queue.Queue()):
         # search part
 
         uuidGuest = uuid.uuid4()
@@ -120,7 +120,7 @@ class You(Browser):
             chat = urllib.parse.quote(str(self.conversation))
             print(chat)
         
-        ws_url = f'https://you.com/api/streamingSearch?q={query}%3F&page=1&count=10&safeSearch={safeSearch}&mkt={responseLanguage}&responseFilter={filters}&domain=youchat&use_personalization_extraction=true&queryTraceId={traceId}&chatId={chatId}&conversationTurnId={turnId}&pastChatLength=0&selectedChatMode={chatModel}&chat={chat}'
+        ws_url = f'https://you.com/api/streamingSearch?q={message}%3F&page=1&count=10&safeSearch={safeSearch}&mkt={responseLanguage}&responseFilter={filters}&domain=youchat&use_personalization_extraction=true&queryTraceId={traceId}&chatId={chatId}&conversationTurnId={turnId}&pastChatLength=0&selectedChatMode={chatModel}&chat={chat}'
         extractedText = ""
         if stream:
             response = self.session.get(ws_url, headers=self.headers, stream=True)
@@ -136,7 +136,7 @@ class You(Browser):
                             #print("original line: ",line)
                             extractedData = line[line.find(': "')+len(': "'):]
                             extractedData = extractedData[:extractedData.rfind('"}')]
-                            q.put(extractedData)
+                            queue.put(extractedData)
                             extractedText+=extractedData                         
                             #print("extracted value: ",extractedData, end='\n')
                         #elif event == 'youChatModeLimits': # limits information
@@ -162,7 +162,7 @@ class You(Browser):
                     # extract new event from "b'event: youChatToken'" response
                     event = line[line.find('event: ')+7:]
         
-        nodePetition = {"question":query}
+        nodePetition = {"question":message}
         nodeResponse = {"answer":extractedText}
 
         self.conversation.append(nodePetition)

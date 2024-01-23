@@ -58,7 +58,7 @@ class WRTNAI(Browser):
         return xveilid, xsession
     
 
-    def prompt(self, cmd="who are you?", queue=queue.Queue(), stream=True):
+    def prompt(self, cmd="who are you?", stream=True, queue=queue.Queue()):
         # generates a random new identifier
         x_wrt_id = ''.join(random.choices(string.ascii_lowercase + string.digits, k=21))
         self.xwrtnid = f"{self.version}.{x_wrt_id}.{int(time.time() * 1000)}"
