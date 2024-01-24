@@ -11,7 +11,7 @@ class ChatGPTSpanish(Browser):
         self.headers = {
             'User-Agent': Browser.USER_AGENT,
             'Accept': '*/*',
-            'Accept-Language': 'es-ES,es;q=0.8',
+            'Accept-Language': 'es-ES,es',
             'Origin': 'https://chatgptspanish.org',
             'Alt-Used': 'chatgptspanish.org',
             'Connection': 'keep-alive',

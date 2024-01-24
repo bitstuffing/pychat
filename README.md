@@ -9,18 +9,18 @@ It's a python library that can be used to import in other projects, without any 
 | Provider | GPT3.5 | GPT4 | C. Memory | I. Browser | Stream | Working | Notes |
 |------------|------------|------------|------------|------------|------------|------------|------------|
 | OpenChat | ✘ | ✔ | ✔ | ✘ | ✔ | ✔ | |
-| GPT4FREE | ✘ | ✔ | ✔ | ✘ | ✔ | ✔ | English provider|
-| Wrtn  | ✔ | ✔ | ✘  | ✘  | ✔ | ✔ | South Korean provider (so you have to require in your command the answer in your language if you don't want to read in Korean) |
+| GPT4FREE | ✘ | ✔ | ✔ | ✘ | ✔ | ✔ | English by default |
+| Wrtn  | ✔ | ✔ | ✘  | ✘  | ✔ | ✔ | South Korean by default (so you have to require in your command the answer in your language if you don't want to read in Korean) |
 | ChatGPTSpanish | ✔ | ✔ | ✘ | ✘ | ✘ | ✔ | You're able to ask one time per petition, but you can clean and ask again |
-| You | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | GPT-4 promps are limited to 5 per account, but support auto register a random account |
-| Bing  | ✔ | ✔ | ✘ | ✔ | ✔ | ✔ | Automatized with Firefox and Linux (required to solve captcha and get a validated cookie) |
+| You | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | GPT-4 promps needs login and are limited to 5 per account, but supports auto register a random account and login |
+| Bing  | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | Automatized captcha solver with pySide6 GUI (Desktop), and prompt (last one needs Firefox and Linux)  |
 |  |  |  |  |  |  |  |  |
 
 ## Speech to text engines
 
 | Provider | Working |
 |------------|------------|
-| Watson | ✔  |
+| Watson | ✔ |
 | Bing | ✔ |
 
 ## Text to speech engine

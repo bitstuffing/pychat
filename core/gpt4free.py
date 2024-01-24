@@ -16,7 +16,7 @@ class Gpt4free(Browser):
         self.headers = {
             'User-Agent': Browser.USER_AGENT,
             'Accept': 'text/event-stream',
-            'Accept-Language': 'es-ES,es;q=0.8;q=0.3',
+            'Accept-Language': 'es-ES,es',
             'Referer': self.url,
             'Origin': self.main_url
         }
@@ -83,7 +83,7 @@ class Gpt4free(Browser):
                 # read stream
                 for line in response.iter_lines():
                     if line:
-                        line = line.decode('utf-8')
+                        line = line.decode('unicode_escape')
                         if 'data: {"type":"live","data":"' in line:
                             resp = line.split('data: {"type":"live","data":"')[1].split('"}')[0]
                             queue.put(resp)

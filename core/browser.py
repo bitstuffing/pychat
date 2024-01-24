@@ -19,6 +19,8 @@ class Browser():
     USER_AGENT_EDGE = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0"
     STEAM_BUFFER_SIZE = 512
 
+    CAPTCHA_TIMEOUT = 5
+
     headers = {
         'User-Agent': USER_AGENT
     }
@@ -216,7 +218,7 @@ class Browser():
 
     def extractCookiesFromRealFirefox(self, url):
         
-        self.launch_firefox(url, 5)
+        self.launch_firefox(url, Browser.CAPTCHA_TIMEOUT)
 
         return self.extractFirefoxCookies()
 

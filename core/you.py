@@ -19,7 +19,7 @@ class You(Browser):
         self.headers = {
             'User-Agent': Browser.USER_AGENT,
             'Accept': 'text/event-stream',
-            'Accept-Language': 'es-ES,es;q=0.8,en-US;q=0.5,en;q=0.3',
+            'Accept-Language': 'es-ES,es',
             #'Accept-Encoding': 'gzip, deflate, br',
             'Referer' : "https://you.com",
             'Origin' : "https://you.com",
@@ -120,13 +120,14 @@ class You(Browser):
             chat = urllib.parse.quote(str(self.conversation))
             print(chat)
         
-        ws_url = f'https://you.com/api/streamingSearch?q={message}%3F&page=1&count=10&safeSearch={safeSearch}&mkt={responseLanguage}&responseFilter={filters}&domain=youchat&use_personalization_extraction=true&queryTraceId={traceId}&chatId={chatId}&conversationTurnId={turnId}&pastChatLength=0&selectedChatMode={chatModel}&chat={chat}'
+        ws_url = f'https://you.com/api/streamingSearch?q={message}%3F&page=1&showNoAppsInYouChat=true&count=10&safeSearch={safeSearch}&mkt={responseLanguage}&responseFilter={filters}&domain=youchat&use_personalization_extraction=true&queryTraceId={traceId}&chatId={chatId}&conversationTurnId={turnId}&pastChatLength=0&selectedChatMode={chatModel}&chat={chat}'
         extractedText = ""
         if stream:
             response = self.session.get(ws_url, headers=self.headers, stream=True)
             event = ""
             for line in response.iter_lines():
-                line = line.decode('utf-8')
+                line = line.decode('unicode_escape')
+                line = str(line)
                 if line:
                     #print(line, end='\n')
                     # make a switch case to handle the different types of lines, if line startsWith "event: " then it's a new event, if line startsWith "data: " 
@@ -136,8 +137,8 @@ class You(Browser):
                             #print("original line: ",line)
                             extractedData = line[line.find(': "')+len(': "'):]
                             extractedData = extractedData[:extractedData.rfind('"}')]
-                            queue.put(extractedData)
-                            extractedText+=extractedData                         
+                            queue.put(str(extractedData))
+                            extractedText+=str(extractedData)                         
                             #print("extracted value: ",extractedData, end='\n')
                         #elif event == 'youChatModeLimits': # limits information
                         #    print(line)

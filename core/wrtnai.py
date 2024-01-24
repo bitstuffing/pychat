@@ -20,7 +20,7 @@ class WRTNAI(Browser):
         self.headers = {
             'User-Agent': Browser.USER_AGENT,
             'Accept': '*/*',
-            'Accept-Language': 'es-es,es;q=0.8,en-us;q=0.5,en;q=0.3',
+            'Accept-Language': 'es-es,es',
             'Access-Control-Request-Method': 'PATCH',
             'Access-Control-Request-Headers': 'content-type,x-session',
             'Referer': self.main_url,
@@ -68,7 +68,7 @@ class WRTNAI(Browser):
         headers = {
             'User-Agent': Browser.USER_AGENT,
             'Accept': 'application/json',
-            'Accept-Language': 'es-es,es;q=0.8,en-us;q=0.5,en;q=0.3',
+            'Accept-Language': 'es-es,es',
             'Platform': 'web',
             'Origin': self.main_url,
             'Connection': 'keep-alive',
