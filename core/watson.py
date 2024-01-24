@@ -16,7 +16,7 @@ class Watson(Browser):
         self.headers = {
             'User-Agent': Browser.USER_AGENT,
             'Accept': 'audio/wav',
-            'Accept-Language': 'es-ES,es;q=0.8,en-US;q=0.5,en;q=0.3',
+            'Accept-Language': 'es-ES,es',
             'Sec-WebSocket-Version': '13',
             'Origin': 'https://www.ibm.com',
             'Connection': 'keep-alive, Upgrade',
@@ -35,7 +35,7 @@ class Watson(Browser):
         headers = {
             'User-Agent': Browser.USER_AGENT,
             'Accept': 'application/json',
-            'Accept-Language': 'es-ES,es;q=0.8,en-US;q=0.5,en;q=0.3',
+            'Accept-Language': 'es-ES,es',
             'Referer': 'https://www.ibm.com/demos/live/speech-to-text/self-service/home',
             'Content-Type': 'application/json',
             'Origin': 'https://www.ibm.com',

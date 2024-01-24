@@ -20,7 +20,8 @@ class MainWindow(JavascriptWindow):
         self.view = QWebEngineView()
         #self.view.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.view.page().settings().setAttribute(QWebEngineSettings.WebAttribute.ShowScrollBars, False)
-        self.view.load(QUrl('http://localhost:5000/'))
+        self.view.load(QUrl('http://localhost:5000/'))     
+        
         layout.addWidget(self.view)
 
         hbox = QHBoxLayout()
@@ -30,37 +31,41 @@ class MainWindow(JavascriptWindow):
         self.text_box.returnPressed.connect(self.send_message)
         hbox.addWidget(self.text_box)
 
-        transcribe_button = QPushButton('Voice')
-        transcribe_button.clicked.connect(self.transcribe)
-        hbox.addWidget(transcribe_button)
+        self.transcribe_button = QPushButton('Voice')
+        self.transcribe_button.clicked.connect(self.transcribe)
+        hbox.addWidget(self.transcribe_button)
 
         voice_provider = QComboBox()
-        voice_provider.addItem("Watson")
         voice_provider.addItem("Bing")
+        voice_provider.addItem("Watson")
+        voice_provider.setEnabled(False) # just for code uploaded to github, when watson is going to be integrated, this line must be removed 
         voice_provider.currentIndexChanged.connect(self.voiceSelectionChange)
         hbox.addWidget(voice_provider)
 
-        send_button = QPushButton('Send')
-        send_button.clicked.connect(self.send_message)
-        hbox.addWidget(send_button)
+        self.send_button = QPushButton('Send')
+        self.send_button.clicked.connect(self.send_message)
+        hbox.addWidget(self.send_button)
 
         layout.addLayout(hbox)
 
         hbox2 = QHBoxLayout()
-        self.label = QLabel("Provider: OpenChat")
-        combobox = QComboBox()
-        combobox.addItem("OpenChat")
-        combobox.addItem("ChatGPT Spanish")
-        combobox.addItem("GPT4Free")
-        combobox.addItem("You")
-        combobox.addItem("Bing")
-        combobox.addItem("Wrtn(ai)")
-        combobox.currentIndexChanged.connect(self.selectionchange)
+        self.label = QLineEdit("Provider: OpenChat")
+        self.label.setReadOnly(True)
+        self.label.setStyleSheet("border: none;")
+        self.combobox = QComboBox()
+        self.combobox.addItem("OpenChat")
+        self.combobox.addItem("ChatGPT Spanish")
+        self.combobox.addItem("GPT4Free")
+        self.combobox.addItem("You")
+        self.combobox.addItem("Bing")
+        self.combobox.addItem("Wrtn(ai)")
+        self.combobox.currentIndexChanged.connect(self.selectionchange)
         hbox2.addWidget(self.label)
-        hbox2.addWidget(combobox)
+        hbox2.addWidget(self.combobox)
+
+        reset_button = QPushButton('Reset')
+        reset_button.clicked.connect(self.reset)
+        hbox2.addWidget(reset_button)
         layout.addLayout(hbox2)
 
         self.setCentralWidget(window)
-        print("layout added")
-        
-        

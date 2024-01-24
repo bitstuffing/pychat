@@ -44,15 +44,19 @@ class AudioRecorder(threading.Thread):
 
 class Bing(Browser):
     VERSION = "1.1381.12"
+    ANONYMOUS_LIMIT = 10
+    TIMEOUT_LIMIT = 6
 
     conversationId = ''
     clientId = ''
     conversationSignature = ''
+    
+    cookies = ''
 
     WS_BING_HEADERS = {
         "Pragma": "no-cache",
         "Origin": "https://www.bing.com",
-        "Accept-Language": 'es-ES,es;q=0.8,en-US;q=0.5,en;q=0.3',
+        "Accept-Language": 'es-ES,es',
         "User-Agent": Browser.USER_AGENT,
         "Cache-Control": "no-cache",
         "Connection": "Upgrade",
@@ -71,7 +75,7 @@ class Bing(Browser):
         self.headers = {
             'User-Agent': Browser.USER_AGENT, 
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-            'Accept-Language': 'es-ES,es;q=0.8,en-US;q=0.5,en;q=0.3',
+            'Accept-Language': 'es-ES,es',
             'Upgrade-Insecure-Requests': '1',
             'Connection': 'keep-alive',
             'Sec-Fetch-Dest': 'document',
@@ -82,7 +86,7 @@ class Bing(Browser):
         self.ws_headers = {
             'User-Agent': Browser.USER_AGENT,
             'Accept': '*/*',
-            'Accept-Language': 'es-ES,es;q=0.8,en-US;q=0.5,en;q=0.3',
+            'Accept-Language': 'es-ES,es',
             'Sec-WebSocket-Version': '13',
             'Origin': 'https://www.bing.com',
             'Host': 'sydney.bing.com',
@@ -135,8 +139,9 @@ class Bing(Browser):
             prompt = prompt.encode('ascii', 'ignore').decode('ascii')
         except:
             pass
-        cookies = ""
-        cookies = self.extractFirefoxCookies()
+        cookies = self.cookies
+        if self.cookies == '':
+            cookies = self.extractFirefoxCookies()
         if True:
             #cookies = self.launch_captcha_solver()
             for cookie in cookies.split("; "):
@@ -148,25 +153,37 @@ class Bing(Browser):
         for cookie in self.session.cookies:
             cookies += cookie.name+"="+cookie.value+"; "
         #print("PRE cookies: "+cookies)
+        
+
         coroutine = self.run_init_conversation(prompt, cookies=cookies, queue=queue)
         #response = asyncio.run(coroutine)
         response = await coroutine
-        if "CaptchaChallenge" in response.data:
-            cookies = self.launch_captcha_solver()
-            # updates self.session cookies using normal string cookies, parsing it and creating a cookie object for each one
-            
-            for cookie in cookies.split("; "):
-                if "=" in cookie:
-                    cookie = cookie.split("=")
-                    #print("updating cookie: "+cookie[0]+"="+cookie[1])
-                    self.session.cookies.set(cookie[0], cookie[1])
+        await self.await_init_conversation(response, prompt, queue)
 
-        self.run_init_conversation(prompt, cookies, queue)
+    async def await_init_conversation(self, response, prompt, queue):
+        if response is not None:
+            if "CaptchaChallenge" in response.data:
+                self.invocation_id = 0
+                self.conversationId = ''
+                cookies = self.launch_captcha_solver()
+                # updates self.session cookies using normal string cookies, parsing it and creating a cookie object for each one
+                
+                for cookie in cookies.split("; "):
+                    if "=" in cookie:
+                        cookie = cookie.split("=")
+                        #print("updating cookie: "+cookie[0]+"="+cookie[1])
+                        self.session.cookies.set(cookie[0], cookie[1])
 
+            coroutine = self.run_init_conversation(prompt, cookies, queue)
+            response = await coroutine
+            await self.await_init_conversation(response, prompt, queue)
+
+    def getCaptchaSolverUrl(self):
+        return "https://www.bing.com/turing/captcha/challenge?q=&iframeid=local-gen-"+str(uuid.uuid4())
 
     def launch_captcha_solver(self):
         # set valid cct cookie
-        url = "https://www.bing.com/turing/captcha/challenge?q=&iframeid=local-gen-"+str(uuid.uuid4())
+        url = self.getCaptchaSolverUrl()
         cookie = self.extractCookiesFromRealFirefox(url)
         return cookie
     
@@ -198,22 +215,25 @@ class Bing(Browser):
         #print("init_conversation: cookies: "+cookies)
         if cookies != '':
             self.headers['Cookie'] = cookies
-        if self.conversationId == '' or self.clientId == '' or self.conversationSignature == '' or self.conversationSignature2 == '':
+        if self.invocation_id >= Bing.ANONYMOUS_LIMIT or self.conversationId == '' or self.clientId == '' or self.conversationSignature == '' or self.conversationSignature2 == '':
                 
             #tasks = [asyncio.create_task(self.init_conversation_async())]
             #await asyncio.gather(*tasks)
             #self.conversationId, self.clientId, self.conversationSignature, self.conversationSignature2 = tasks[0].result()
             self.conversationId, self.clientId, self.conversationSignature, self.conversationSignature2 = await self.init_conversation_async()
+            self.invocation_id = 0
+        else:
+            print("using previous conversation parameters: ", self.conversationId, self.clientId, self.conversationSignature, self.conversationSignature2)
 
         async with ClientSession(headers=self.ws_headers, cookies=self.cookiesToDict(cookies), timeout=aiohttp.ClientTimeout(total=60)) as session:
             async with session.ws_connect(self.ws_url, autoping=False, params={'sec_access_token': self.conversationSignature}) as wss:
-                #print("starting conversation...")
+                print("starting conversation...")
                 await wss.send_str(self.format_message({'protocol': 'json', 'version': 1}))
-                response = await wss.receive(timeout=10)
+                response = await wss.receive(timeout=Bing.TIMEOUT_LIMIT)
                 #print("response: "+response.data)
                 await wss.send_str(self.create_message(self.conversationId, self.clientId, self.conversationSignature, self.conversationSignature2, prompt))
                 self.invocation_id += 1
-                response2 = await wss.receive(timeout=10)
+                response2 = await wss.receive(timeout=Bing.TIMEOUT_LIMIT)
                 #print("response2: "+response2.data)
                 if "CaptchaChallenge" in response2.data:
                     return response2
@@ -221,8 +241,12 @@ class Bing(Browser):
                 #    print(response2.data)
                 #print("done!")
                 # get all responses until disconnected (TODO handler out of this function)
+                print('processing conversation...')
                 while True:
-                    response = await wss.receive(timeout=10)
+                    try:
+                        response = await wss.receive(timeout=Bing.TIMEOUT_LIMIT)
+                    except Exception as e:
+                        break
                     if response.type == aiohttp.WSMsgType.CLOSED:
                         print("CLOSED!")
                         break
@@ -267,6 +291,8 @@ class Bing(Browser):
                                 print(traceback_str)
                                 print(f"json_response.encode('utf-8'): {json_response.encode('utf-8')}")
                                 pass
+                await wss.close()
+                await session.close()
                                 
     
     def create_message(self, conversationId: str, clientId: str, conversationSignature: str, conversationSignature2: str, prompt: str):
@@ -363,8 +389,8 @@ class Bing(Browser):
         #print(message)
         return message
 
-    def speech_to_text(self):
-        asyncio.run(self.speech_to_text_async())
+    def speech_to_text(self, queue=queue.Queue()):
+        asyncio.run(self.speech_to_text_async(queue=queue))
 
     def build_audio_message_header(self, request_id = str(uuid.uuid4())):
         timestamp = datetime.datetime.now(tz=tzutc()).strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
@@ -394,7 +420,7 @@ class Bing(Browser):
         message += content
         return message
 
-    async def speech_to_text_async(self):
+    async def speech_to_text_async(self, queue=queue.Queue()):
         
         '''
         if( self.cid == '' or self.ig == ''):
@@ -447,15 +473,15 @@ class Bing(Browser):
                 await wss.send_str(self.build_speech_message(path='speech.context', request_id=request_id, content={}))
                 print("speech.context sent")
 
-                response = await wss.receive(timeout=10)
+                response = await wss.receive(timeout=Bing.TIMEOUT_LIMIT)
                 if response.data != '':
                     print(response.data)
 
-                response = await wss.receive(timeout=10)
+                response = await wss.receive(timeout=Bing.TIMEOUT_LIMIT)
                 if response.data != '':
                     print(response.data)
 
-                response = await wss.receive(timeout=10)
+                response = await wss.receive(timeout=Bing.TIMEOUT_LIMIT)
                 if response.data != '':
                     print(response.data)
                     if "speech.startDetected" in response.data:
@@ -494,7 +520,7 @@ class Bing(Browser):
 
                         if call % 12 == 0:
                             print('show partial text content')
-                            response = await wss.receive(timeout=10)
+                            response = await wss.receive(timeout=Bing.TIMEOUT_LIMIT)
                             if response.type == aiohttp.WSMsgType.CLOSED:
                                 print("CLOSED!")
                             elif response.type == aiohttp.WSMsgType.ERROR:
@@ -505,21 +531,25 @@ class Bing(Browser):
                                     print(json_response)
                                     try:
                                         resp = json.loads(json_response[json_response.find("\r\n\r\n")+4:])
+                                        print(resp)
                                         text, offset, duration, recognitionStatus, displayText, primaryLanguage = None, None, None, None, None, None
-                                        if hasattr(resp, 'Text'):
+                                        if 'Text' in resp:
                                             text = resp.get('Text')
-                                        if hasattr(resp, 'Offset'):
+                                        if 'Offset' in resp:
                                             offset = resp.get('Offset')
-                                        if hasattr(resp, 'Duration'):
+                                        if 'Duration' in resp:
                                             duration = resp.get('Duration')
-                                        if hasattr(resp, 'RecognitionStatus'):
+                                        if 'RecognitionStatus' in resp:
                                             recognitionStatus = resp.get('RecognitionStatus')
-                                        if hasattr(resp, 'DisplayText'):
+                                        if 'DisplayText' in resp:
                                             displayText = resp.get('DisplayText')
-                                        if hasattr(resp, 'PrimaryLanguage'):
+                                        if 'PrimaryLanguage' in resp:
                                             primaryLanguage = resp.get('PrimaryLanguage')
 
+                                        #print(f"text: {text}, offset: {str(offset)}, duration: {str(duration)}, recognitionStatus: {str(recognitionStatus)}, displayText: {displayText}, primaryLanguage: {primaryLanguage}")
+
                                         bingResponse = BingTextResponse(text = text, offset = offset, duration = duration, recognitionStatus = recognitionStatus, displayText = displayText, primaryLanguage = primaryLanguage)
+                                        queue.put(bingResponse)
                                         if '{"RecognitionStatus":"Success",' in json_response:
                                         # TODO review why this line is not working, it should be but... probably tomorrow will be a better day to check it
                                         #if recognitionStatus is not None and (recognitionStatus == "Success" or recognitionStatus == "EndOfDictation"):
@@ -536,7 +566,7 @@ class Bing(Browser):
                 #print("sent content, receiving LAST response...")
 
                 
-                response = await wss.receive(timeout=10)
+                response = await wss.receive(timeout=Bing.TIMEOUT_LIMIT)
                 if response.type == aiohttp.WSMsgType.CLOSED:
                     print("CLOSED!")
                 elif response.type == aiohttp.WSMsgType.ERROR:

@@ -17,7 +17,7 @@ class OpenChat(Browser):
         self.headers = {
             'User-Agent': Browser.USER_AGENT,
             'Accept': '*/*',
-            'Accept-Language': 'es-ES,es;q=0.8,en-US;q=0.5,en;q=0.3',
+            'Accept-Language': 'es-ES,es',
             'Referer' : self.main_referer,
             'Content-Type' : 'application/json',
             'Origin': self.main_origin,
