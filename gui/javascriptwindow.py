@@ -172,7 +172,7 @@ class JavascriptWindow(QMainWindow):
     def __init__(self):
         print("init... javascript window")
         super().__init__()
-        self.provider = OpenChat()#ChatGPTSpanish()#Gpt4free()#You()#Bing()
+        self.provider = Bing()#ChatGPTSpanish()#Gpt4free()#You()#OpenChat()
         self.voiceProvider = Bing()#Watson()
 
     def voiceSelectionChange(self,i):
