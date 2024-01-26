@@ -69,3 +69,4 @@ class MainWindow(JavascriptWindow):
         layout.addLayout(hbox2)
 
         self.setCentralWidget(window)
+        self.reset() # Bing needs it
