@@ -8,7 +8,7 @@ It's a python library that can be used to import in other projects, without any 
 
 | Provider | GPT3.5 | GPT4 | C. Memory | I. Browser | Stream | Working | Notes |
 |------------|------------|------------|------------|------------|------------|------------|------------|
-| OpenChat | ✘ | ✔ | ✔ | ✘ | ✔ | ✘ | |
+| OpenChat | ✘ | ✔ | ✔ | ✘ | ✔ | ✔ | Sometimes online services is down for maintenance |
 | GPT4FREE | ✘ | ✔ | ✔ | ✘ | ✔ | ✔ | English by default |
 | Wrtn  | ✔ | ✔ | ✘  | ✘  | ✔ | ✔ | South Korean by default (so you have to require in your command the answer in your language if you don't want to read in Korean) |
 | ChatGPTSpanish | ✔ | ✔ | ✘ | ✘ | ✘ | ✔ | You're able to ask one time per petition, but you can clean and ask again |
