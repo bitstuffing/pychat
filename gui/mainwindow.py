@@ -20,6 +20,7 @@ class MainWindow(JavascriptWindow):
         self.view = QWebEngineView()
         #self.view.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.view.page().settings().setAttribute(QWebEngineSettings.WebAttribute.ShowScrollBars, False)
+
         self.view.load(QUrl('http://localhost:5000/'))     
         
         layout.addWidget(self.view)
