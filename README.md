@@ -6,28 +6,31 @@ It's a python library that can be used to import in other projects, without any 
 
 ## Models engine implemented
 
-| Provider | GPT3.5 | GPT4 | C. Memory | I. Browser | Stream | Working | Notes |
-|------------|------------|------------|------------|------------|------------|------------|------------|
-| OpenChat | ✘ | ✔ | ✔ | ✘ | ✔ | ✔ | Sometimes online services is down for maintenance |
-| GPT4FREE | ✘ | ✔ | ✔ | ✘ | ✔ | ✔ | English by default |
-| Wrtn  | ✔ | ✔ | ✘  | ✘  | ✔ | ✔ | South Korean by default (so you have to require in your command the answer in your language if you don't want to read in Korean) |
-| ChatGPTSpanish | ✔ | ✔ | ✘ | ✘ | ✘ | ✔ | You're able to ask one time per petition, but you can clean and ask again |
-| You | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | GPT-4 promps needs login and are limited to 5 per account, but supports auto register a random account and login |
-| Bing  | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | Automatized captcha solver with pySide6 GUI (Desktop), and prompt (last one needs Firefox and Linux)  |
-|  |  |  |  |  |  |  |  |
+| Provider | GPT3.5 | GPT4 | C. Memory | I. Browser | Stream | Working | In GUI | Notes |
+|------------|------------|------------|------------|------------|------------|------------|------------|------------|
+| OpenChat | ✘ | ✔ | ✔ | ✘ | ✔ | ✔ | ✔ | Sometimes online services is down for maintenance |
+| Bing  | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | Automatized captcha solver with pySide6 GUI (Desktop), and prompt (last one needs Firefox and Linux)  |
+| GPT4FREE | ✘ | ✔ | ✔ | ✘ | ✔ | ✔ | ✔ | English by default |
+| Wrtn  | ✔ | ✔ | ✘  | ✘  | ✔ | ✔ | ✔ | South Korean by default (so you have to require in your command the answer in your language if you don't want to read in Korean) |
+| ChatGPTSpanish | ✔ | ✔ | ✘ | ✘ | ✘ | ✔ | ✔ | You're able to ask one time per petition, but you can clean and ask again |
+| You | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | GPT-4 promps needs login and are limited to 5 per account, but supports auto register a random account and login |
+| ch4  | ✔ | ✔ | ✔ | ✘ | ✔ | ✔ | ✘ | It's too slow, even streaming, but works. Needs to be logged in (you've auto-registration, but it's preferible use always the same cookie). Sometimes platform forces using Gemini-Pro, but... it's a platform bug. |
+|  |  |  |  |  |  |  |  |  |
 
 ## Speech to text engines
 
-| Provider | Working |
-|------------|------------|
-| Watson | ✔ |
-| Bing | ✔ |
+| Provider | Working | In GUI |
+|------------|------------|------------|
+| Watson | ✔ | ✘ |
+| Bing | ✔ | ✔ |
+|  |  |  | 
 
 ## Text to speech engine
 
-| Provider | Working |
-|------------|------------|
-| Google | ✔  |
+| Provider | Working | In GUI |
+|------------|------------|------------|
+| Google | ✔  | ✘ |
+|  |  |  | 
 
 
 # How to use it (future wiki section)
@@ -62,6 +65,11 @@ gpt4free.prompt(realPetitionPromptNew)
 from core.chatgptspanish import ChatGPTSpanish
 chatgptspanish = ChatGPTSpanish()
 chatgptspanish.send_message(realPetitionPromptNew)
+
+# ch4
+from core.ch4usto import Ch4usto
+c=Ch4usto()
+c.send_message(realPetitionPromptNew)
 
 # Bing
 from core.bing import Bing
