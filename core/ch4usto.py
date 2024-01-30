@@ -5,19 +5,29 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-# experimental selenium browser client for ch4.us.to (same domain/database than ch4t.us)
+# experimental selenium browser client for ch4.us.to 
+# ( same backend and database than ch4.cch137.link )
 class Ch4usto(SeleniumBrowser):
+
+    DOMAIN = "ch4.cch137.link"
+    #DOMAIN = "ch4.us.to"
 
     def __init__(self):
         super().__init__()
-        self.loginUrl = "https://ch4.us.to/auth/signin"
-        self.registerUrl = "https://ch4.us.to/auth/signup"
+        self.mainUrl = f"https://{self.DOMAIN}/"
+        self.loginUrl = f"https://{self.DOMAIN}/auth/signin"
+        self.registerUrl = f"https://{self.DOMAIN}/auth/signup"
+        self.chatUrl = f"https://{self.DOMAIN}/apps/ai-chat/"
+        self.email = ""
         self.password = "Passwd.11" 
+        self.xtoken = "" # defines login state
+        self.cookie = None
 
     def register(self):
         tempEmail = TempEmail()
         self.email = tempEmail.getEmail()
-        self.loadDriver()
+        if self.driver is None:
+            self.loadDriver()
 
         self.driver.get(self.registerUrl) 
 
@@ -77,10 +87,9 @@ class Ch4usto(SeleniumBrowser):
             self.driver.quit()
             print("element not found :'(")
 
-
-
     def login(self):
-        self.loadDriver()
+        if self.driver is None:
+            self.loadDriver()
 
         print("logging in...")
 
@@ -110,7 +119,7 @@ class Ch4usto(SeleniumBrowser):
                 EC.presence_of_element_located((By.CSS_SELECTOR, "button[type=\"button\"]"))
             )
             button_submit.click()
-            time.sleep(4)
+            
 
             # javascript should redirect us to the main page, so we wait for it to load    
 
@@ -120,26 +129,166 @@ class Ch4usto(SeleniumBrowser):
                 f.write(screenshot)
             self.driver.quit()
             print("element not found :'(")
-                
+        
+        self.cookie = None # first time clean old cookies
         # get the sign in cookies
-        driver_cookies = self.driver.get_cookies()
-        cookies = {}
-        for cookie in driver_cookies:
-            cookies[cookie['name']] = cookie['value']
-            self.cookies += cookie['name'] + "=" + cookie['value'] + "; "
+        while self.cookie == None:
+            print("try...")
+            try:
+                self.cookie = self.driver.get_cookie('x-token')
+                print(str(cookie))
+                #self.driver.save_screenshot('ok_login.png')
+            except:
+                print("cookie not found")
+                #self.driver.save_screenshot('fail_login.png')
+                time.sleep(1)
+                pass
+        
+        print("continue...")
+
+        self.xtoken = ""
+        while self.xtoken == "":
+            driver_cookies = self.driver.get_cookies()
+            cookies = {}
+            for cookie in driver_cookies:
+                cookies[cookie['name']] = cookie['value']
+                self.cookies += cookie['name'] + "=" + cookie['value'] + "; "
+                if cookie['name'] == "x-token":
+                    self.xtoken = cookie['value']
+                    self.cookie = cookie
+            time.sleep(1)
         
         print(cookies)
 
         # show screenshot
-        self.driver.save_screenshot('screenshot.png')
+        #self.driver.save_screenshot('screenshot.png')
     
-        self.driver.quit()
+        #self.driver.quit()
 
         return cookies # self.cookies
     
-    def send_message(self, cmd="hello, who are you?"):
-        self.loadDriver()
-
+    def send_message(self, cmd="hello, who are you?", conversationUrl = ""):
+        if conversationUrl == "":
+            conversationUrl = self.chatUrl
+        #self.loadDriver()
+        #cookie = self.driver.get_cookie('x-token')
+        #print(str(self.cookie))
         # TODO (here is the magic)
+        if self.xtoken == "" and self.email != "":
+            self.login()
+        elif self.xtoken == "":
+            self.register()
+            self.login()
+        else:
+            if self.driver is None:
+                self.loadDriver()
+                # now updates self.driver with the cookies
+                self.driver.get("https://"+self.DOMAIN+"/")
+            self.driver.delete_all_cookies()
+            time.sleep(0.6)
+            #self.driver.add_cookie(self.cookie)
+            #self.driver.get(self.chatUrl)
+            cookie = {'domain': self.DOMAIN, 'httpOnly': True, 'name': 'x-token', 'path': '/', 'sameSite': 'Lax', 'secure': True, 'value': str(self.xtoken)}
+            cookie2 = {'domain': "."+self.DOMAIN, 'httpOnly': True, 'name': 'x-token', 'path': '/', 'sameSite': 'Lax', 'secure': True, 'value': str(self.xtoken)}
+            #print(str(cookie))
+            self.driver.add_cookie(cookie2)
+            self.driver.add_cookie(cookie)
+
+        print("opening chat...")
+        print(str(self.driver.get_cookies()))
+        self.driver.get(self.chatUrl)
+        time.sleep(0.1)
+
+        # print all the page (debug)
+        #self.driver.save_screenshot('screenshot.png')
+        #print("screenshot saved")
+
+        # search for $("button[id^='react-aria']") and click it
+        button = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "button[id^='react-aria']"))
+        )
+
+        button.click()
+        model = ""
+        while "GPT-4" not in model:
+            time.sleep(0.5)
+            # now click on li element with value="gpt-4"
+            li_model = WebDriverWait(self.driver, 10).until(
+                EC.presence_of_all_elements_located((By.CSS_SELECTOR, "li[value='gpt-4']"))
+            )
+            li_model[len(li_model)-1].click()
+
+            # take 0.5 second to load the model
+            time.sleep(0.5)
+            print("searching for model...")
+
+            # ensure that the button value is "gpt-4", so we have to seek for a children node "span" with "data-slot" attribute = "value" and tag content "gpt-4"
+            span_model = WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, "span[data-slot='value']"))
+            )
+            model = span_model.text
+            print("model is: " + model)
+        if("GPT-4" in model):
+            print("using model selected, span text is: " + model) 
+            try:
+                # search for the textarea with data-slot="input"
+                textarea = WebDriverWait(self.driver, 10).until(
+                    EC.presence_of_element_located((By.CSS_SELECTOR, "textarea[data-slot='input']"))
+                )
+                # set the message
+                textarea.send_keys(cmd)
+                # now simulate the enter key in textarea to send the message
+                textarea.send_keys(u'\ue007')
+
+                # wait for the response, read the p element inside the last div with class "aichat-message"
+                response = WebDriverWait(self.driver, 10).until(
+                    EC.presence_of_all_elements_located((By.CSS_SELECTOR, "div.aichat-message p"))
+                )
+
+                # there is a response, so there is a conversatsion, now capture the button with css
+                button = WebDriverWait(self.driver, 10).until(
+                    EC.presence_of_element_located((By.CSS_SELECTOR, "button[id^='aichat-conv-']")) #cc_aLbej
+                )
+
+                # get the id attribute value to continue conversation
+                self.conversationId = button.get_attribute('id').split("aichat-conv-")[1]
+                
+
+                # check size of response and print it
+                print(len(response))
+
+                # the javascript will write the response in the p element, so we need to refresh the element to get the text each second
+                last_response = ""
+                next_try = 0
+                while next_try < 10:
+                    try:
+                        current_response = response[len(response)-1].text
+                        time.sleep(0.5)
+                        print("temp response is: " + current_response)
+                        if last_response == current_response and last_response != "": 
+                            print("same response, next try...")
+                            next_try += 1
+                        elif len(current_response)>0:
+                            print("updating response...")
+                            last_response = current_response
+                        else:
+                            print("empty response, waiting...")
+                    except:
+                        time.sleep(0.5)
+                        print("exception, waiting...")
+                        if last_response != "":
+                            next_try += 1
+                        pass
+                    
+                print("response is: " + last_response)
+                #self.driver.save_screenshot('screenshot2.png')
+            except Exception as ex:
+                #self.driver.save_screenshot('exception.png')
+                print("exception: " + str(ex))
+
+        else:
+            print("target model not selected")
+
 
         self.driver.close()
+        self.driver = None # flag to reload the driver
