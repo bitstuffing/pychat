@@ -80,11 +80,20 @@ class Ch4usto(SeleniumBrowser):
             )
             button_submit.click()
 
+            #time.sleep(1)
+            # search cookie, in the new version registered users are logged in automatically
+            self.cookie = self.driver.get_cookie('x-token')
+            print(str(self.cookie))
+            self.xtoken = self.cookie["value"]
+            self.driver.save_screenshot('ok_register.png')
+            print("self.xtoken: " + self.xtoken)
+
         except:
             screenshot = self.driver.get_screenshot_as_png()
-            with open('screenshot.png', 'wb') as f:
+            with open('screenshot_fail.png', 'wb') as f:
                 f.write(screenshot)
             self.driver.quit()
+            self.driver = None
             print("element not found :'(")
 
     def login(self):
@@ -125,14 +134,14 @@ class Ch4usto(SeleniumBrowser):
 
         except:
             screenshot = self.driver.get_screenshot_as_png()
-            with open('screenshot.png', 'wb') as f:
+            with open('screenshot_fail.png', 'wb') as f:
                 f.write(screenshot)
             self.driver.quit()
             print("element not found :'(")
         
         self.cookie = None # first time clean old cookies
         # get the sign in cookies
-        while self.cookie == None:
+        while self.cookie == None or self.xtoken == "":
             print("try...")
             try:
                 self.cookie = self.driver.get_cookie('x-token')
@@ -140,7 +149,7 @@ class Ch4usto(SeleniumBrowser):
                 #self.driver.save_screenshot('ok_login.png')
             except:
                 print("cookie not found")
-                #self.driver.save_screenshot('fail_login.png')
+                self.driver.save_screenshot('fail_login.png')
                 time.sleep(1)
                 pass
         
@@ -174,30 +183,33 @@ class Ch4usto(SeleniumBrowser):
         #cookie = self.driver.get_cookie('x-token')
         #print(str(self.cookie))
         # TODO (here is the magic)
-        if self.xtoken == "" and self.email != "":
-            self.login()
-        elif self.xtoken == "":
-            self.register()
+        if self.cookie == None:
+            if self.email == "":
+                self.register()
             self.login()
         else:
+            print("elseeee")
             if self.driver is None:
                 self.loadDriver()
                 # now updates self.driver with the cookies
-                self.driver.get("https://"+self.DOMAIN+"/")
+                #self.driver.get("https://"+self.DOMAIN+"/")
+                print("else222")
             self.driver.delete_all_cookies()
-            time.sleep(0.6)
+            time.sleep(1)
             #self.driver.add_cookie(self.cookie)
             #self.driver.get(self.chatUrl)
-            cookie = {'domain': self.DOMAIN, 'httpOnly': True, 'name': 'x-token', 'path': '/', 'sameSite': 'Lax', 'secure': True, 'value': str(self.xtoken)}
+            #if self.cookie == None:
+            self.cookie = {'domain': self.DOMAIN, 'httpOnly': True, 'name': 'x-token', 'path': '/', 'sameSite': 'Lax', 'secure': True, 'value': str(self.xtoken)}
             cookie2 = {'domain': "."+self.DOMAIN, 'httpOnly': True, 'name': 'x-token', 'path': '/', 'sameSite': 'Lax', 'secure': True, 'value': str(self.xtoken)}
-            #print(str(cookie))
+            print(str(cookie2))
+            self.driver.add_cookie(self.cookie)
+            print("one is added")
             self.driver.add_cookie(cookie2)
-            self.driver.add_cookie(cookie)
 
         print("opening chat...")
         print(str(self.driver.get_cookies()))
         self.driver.get(self.chatUrl)
-        time.sleep(0.1)
+        time.sleep(1)
 
         # print all the page (debug)
         #self.driver.save_screenshot('screenshot.png')
