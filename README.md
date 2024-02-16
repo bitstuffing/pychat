@@ -10,7 +10,7 @@ It's a python library that can be used to import in other projects, without any 
 |------------|------------|------------|------------|------------|------------|------------|------------|------------|
 | OpenChat | ✘ | ✔ | ✔ | ✘ | ✔ | ✔ | ✔ | Sometimes online services is down for maintenance |
 | Bing  | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | Automatized captcha solver with pySide6 GUI (Desktop), and prompt (last one needs Firefox and Linux)  |
-| GPT4FREE | ✘ | ✔ | ✔ | ✘ | ✔ | ✔ | ✔ | English by default |
+| gpt4free | ✔ | ✘ | ✔ | ✘ | ✔ | ✔ | ✔ | His engine has changed, it's consuming gptgod.site, so probably I will append his provider and remove this one |
 | Wrtn  | ✔ | ✔ | ✘  | ✘  | ✔ | ✔ | ✔ | South Korean by default (so you have to require in your command the answer in your language if you don't want to read in Korean) |
 | ChatGPTSpanish | ✔ | ✔ | ✘ | ✘ | ✘ | ✔ | ✔ | You're able to ask one time per petition, but you can clean and ask again |
 | You | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | GPT-4 promps needs login and are limited to 5 per account, but supports auto register a random account and login |
