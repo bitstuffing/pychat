@@ -43,9 +43,9 @@ class AudioRecorder(threading.Thread):
                 self.queue.put(audio.frame_data)
 
 class Bing(Browser):
-    VERSION = "1.1381.12"
+    VERSION = "1.1788.0"
     ANONYMOUS_LIMIT = 10
-    TIMEOUT_LIMIT = 6
+    TIMEOUT_LIMIT = 10
 
     conversationId = ''
     clientId = ''

@@ -197,5 +197,8 @@ class SuggestedResponse:
         self.messageId = messageId
         self.messageType = messageType
         self.offense = offense
-        self.feedback = Feedback(feedback.get('tag'),feedback.get('updatedOn'),feedback.get('type'))
+        try:
+            self.feedback = Feedback(feedback.get('tag'),feedback.get('updatedOn'),feedback.get('type'))
+        except:
+            pass
         self.contentOrigin = contentOrigin

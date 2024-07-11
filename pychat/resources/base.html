@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang='en' class=''>
+
+<head>
+
+  <meta charset='UTF-8'>
+  <title>Demo</title>
+
+  <meta name="robots" content="noindex">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+
+  <style id="INLINE_PEN_STYLESHEET_ID">
+    .--dark-theme {
+  --chat-background: rgba(10, 14, 14, 0.95);
+  --chat-panel-background: #131719;
+  --chat-bubble-background: #14181a;
+  --chat-bubble-active-background: #171a1b;
+  --chat-add-button-background: #212324;
+  --chat-send-button-background: #8147fc;
+  --chat-text-color: #a3a3a3;
+  --chat-options-svg: #a3a3a3;
+}
+
+body {
+  background-size: cover;
+}
+
+#chat {
+  background: var(--chat-background);
+  box-sizing: border-box;
+  padding: 1em;
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+}
+#chat::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+}
+#chat .btn-icon {
+  position: relative;
+  cursor: pointer;
+}
+#chat .btn-icon svg {
+  stroke: #FFF;
+  fill: #FFF;
+  width: 50%;
+  height: auto;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+#chat .chat_board {
+  padding: 1em 0 2em;
+  height: calc(100vh);
+  overflow: auto;
+}
+#chat .chat_container_board.reversed {
+  flex-direction: row-reverse;
+}
+#chat .chat_container_board.reversed .chat_bubble {
+  position: relative;
+}
+#chat .chat_container_board.reversed .chat_bubble span:not(:last-child) {
+  margin: 0 0 2em 0;
+}
+#chat .chat_container_board.reversed .chat_message {
+  margin: 0 0 0 1.2em;
+}
+#chat .chat_container_board.reversed .chat_options {
+  align-self: center;
+  position: absolute;
+  left: 0;
+  display: none;
+}
+#chat .chat_container_board {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+}
+#chat .chat_container_board:hover .chat_options {
+  display: flex;
+  align-items: center;
+}
+#chat .chat_container_board:hover .option-item:not(:last-child) {
+  margin: 0 0.5em 0 0;
+}
+#chat .chat_container_board:not(:last-child) {
+  margin: 0 0 2em 0;
+}
+#chat .chat_message {
+  text-align: center;
+  margin: 0 1.2em 0 0;
+}
+#chat .chat_message__avatar {
+  height: 35px;
+  width: 35px;
+  overflow: hidden;
+  border-radius: 50%;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+  position: relative;
+}
+#chat .chat_message__avatar::before {
+  content: "";
+  position: absolute;
+  height: 100%;
+  width: 100%;
+}
+#chat .chat_message__avatar img {
+  height: 100%;
+  width: auto;
+}
+#chat .chat_message__nickname {
+  font-size: 9px;
+  color: #484848;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+  display: none;
+}
+#chat .chat_context {
+  max-width: 55%;
+  align-self: flex-end;
+}
+#chat .chat_options {
+  align-self: center;
+  position: absolute;
+  right: 0;
+  display: none;
+}
+#chat .chat_options .option-item {
+  border: 0;
+  background: 0;
+  padding: 0;
+  margin: 0;
+  height: 16px;
+  width: 16px;
+  outline: none;
+}
+#chat .chat_options .emoji-button svg {
+  stroke: var(--chat-options-svg);
+  fill: transparent;
+  width: 100%;
+}
+#chat .chat_options .more-button svg {
+  stroke: var(--chat-options-svg);
+  fill: transparent;
+  width: 100%;
+}
+#chat .chat_bubble span {
+  width: -webkit-fit-content;
+  width: -moz-fit-content;
+  width: fit-content;
+  display: inline-table;
+  word-wrap: break-word;
+  background: var(--chat-bubble-background);
+  font-size: 13px;
+  color: var(--chat-text-color);
+  padding: 0.5em 0.8em;
+  line-height: 1.5;
+  border-radius: 6px;
+  font-family: "Lato", sans-serif;
+}
+#chat .chat_bubble:not(:last-child) {
+  margin: 0 0 0.3em;
+}
+#chat .chat_bubble:active {
+  background: var(--chat-bubble-active-background);
+}
+
+
+@media only screen and (max-width: 600px) {
+  #chat {
+    margin: 0;
+    border-radius: 0;
+  }
+  #chat .chat_board {
+    height: calc(100vh);
+  }
+  #chat .chat_options {
+    display: none !important;
+  }
+}
+
+#scrooltotopBtn {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  right: 30px;
+  z-index: 99;
+  font-size: 14px;
+  border: none;
+  outline: none;
+  background-color: #8147fc;
+  color: white;
+  cursor: pointer;
+  padding: 15px;
+  border-radius: 25px;
+}
+
+#scrooltotopBtn:hover {
+  background-color: #555;
+}
+  </style>
+
+<button onclick="topFunction()" id="scrooltotopBtn" title="Go">Top</button>
+
+<script src="https://unpkg.com/commonmark@0.30.0"></script>
+
+<script type="text/javascript" >
+    function b64DecodeUnicode(str) {
+        // Going backwards: from bytestream, to percent-encoding, to original string.
+        return decodeURIComponent(atob(str).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+    }
+
+    function updateChatMessageNode(id, message) {
+        // update and decode base64 string message 
+        message = b64DecodeUnicode(message);
+        var reader = new commonmark.Parser();
+        var writer = new commonmark.HtmlRenderer();
+        var content = reader.parse(message);
+        var text = writer.render(content);
+        document.getElementById(id).innerHTML = text;
+        scrollToBottom();    
+    }
+
+    function createChatMessageNode(id, name, message, imageUrl) {
+        const messageContainer = document.createElement('div');
+        messageContainer.className = 'chat_container_board';
+
+        const personContainer = document.createElement('div');
+        personContainer.className = 'chat_message';
+
+        const avatar = document.createElement('div');
+        avatar.className = 'chat_message__avatar';
+        const avatarImg = document.createElement('img');
+        avatarImg.src = imageUrl;
+        avatarImg.alt = name;
+        avatar.appendChild(avatarImg);
+
+        const nickname = document.createElement('span');
+        nickname.className = 'chat_message__nickname';
+        nickname.textContent = name;
+
+        personContainer.appendChild(avatar);
+        personContainer.appendChild(nickname);
+
+        const messageContext = document.createElement('div');
+        messageContext.className = 'chat_context';
+
+        const messageBubble = document.createElement('div');
+        messageBubble.className = 'chat_bubble';
+        const messageText = document.createElement('span');
+        messageText.id = id;
+        messageText.textContent = message;
+        messageBubble.appendChild(messageText);
+
+        messageContext.appendChild(messageBubble);
+
+        const options = document.createElement('div');
+        options.className = 'chat_options';
+
+        const emojiButton = document.createElement('button');
+        emojiButton.className = 'btn-icon chat_board__message__option-button option-item emoji-button';
+        const emojiSvg = document.createElement('svg');
+        emojiSvg.className = 'feather feather-smile sc-dnqmqq jxshSx';
+        emojiSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+        emojiSvg.setAttribute('width', '24');
+        emojiSvg.setAttribute('height', '24');
+        emojiSvg.setAttribute('viewBox', '0 0 24 24');
+        emojiSvg.setAttribute('fill', 'none');
+        emojiSvg.setAttribute('stroke', 'currentColor');
+        emojiSvg.setAttribute('stroke-width', '2');
+        emojiSvg.setAttribute('stroke-linecap', 'round');
+        emojiSvg.setAttribute('stroke-linejoin', 'round');
+        emojiSvg.setAttribute('aria-hidden', 'true');
+
+        const circle1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle1.setAttribute('cx', '12');
+        circle1.setAttribute('cy', '12');
+        circle1.setAttribute('r', '10');
+
+        const path1 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path1.setAttribute('d', 'M8 14s1.5 2 4 2 4-2 4-2');
+
+        const line1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line1.setAttribute('x1', '9');
+        line1.setAttribute('y1', '9');
+        line1.setAttribute('x2', '9.01');
+        line1.setAttribute('y2', '9');
+
+        const line2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line2.setAttribute('x1', '15');
+        line2.setAttribute('y1', '9');
+        line2.setAttribute('x2', '15.01');
+        line2.setAttribute('y2', '9');
+
+        emojiSvg.appendChild(circle1);
+        emojiSvg.appendChild(path1);
+        emojiSvg.appendChild(line1);
+        emojiSvg.appendChild(line2);
+
+        emojiButton.appendChild(emojiSvg);
+
+        const moreButton = document.createElement('button');
+        moreButton.className = 'btn-icon chat_board__message__option-button option-item more-button';
+        const moreSvg = document.createElement('svg');
+        moreSvg.className = 'feather feather-more-horizontal sc-dnqmqq jxshSx';
+        moreSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+        moreSvg.setAttribute('width', '24');
+        moreSvg.setAttribute('height', '24');
+        moreSvg.setAttribute('viewBox', '0 0 24 24');
+        moreSvg.setAttribute('fill', 'none');
+        moreSvg.setAttribute('stroke', 'currentColor');
+        moreSvg.setAttribute('stroke-width', '2');
+        moreSvg.setAttribute('stroke-linecap', 'round');
+        moreSvg.setAttribute('stroke-linejoin', 'round');
+        moreSvg.setAttribute('aria-hidden', 'true');
+
+        const circle2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle2.setAttribute('cx', '12');
+        circle2.setAttribute('cy', '12');
+        circle2.setAttribute('r', '1');
+
+        const circle3 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle3.setAttribute('cx', '19');
+        circle3.setAttribute('cy', '12');
+        circle3.setAttribute('r', '1');
+
+        const circle4 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle4.setAttribute('cx', '5');
+        circle4.setAttribute('cy', '12');
+        circle4.setAttribute('r', '1');
+
+        moreSvg.appendChild(circle2);
+        moreSvg.appendChild(circle3);
+        moreSvg.appendChild(circle4);
+
+        moreButton.appendChild(moreSvg);
+
+        options.appendChild(emojiButton);
+        options.appendChild(moreButton);
+
+        messageContainer.appendChild(personContainer);
+        messageContainer.appendChild(messageContext);
+        messageContainer.appendChild(options);
+
+        const parentElement = document.getElementById('message-container');
+        parentElement.appendChild(messageContainer);
+        
+    }
+
+    function createChatMessageNodeUser(name, message, imageUrl) {
+        const messageContainer = document.createElement('div');
+        messageContainer.className = 'chat_container_board reversed';
+
+        const personContainer = document.createElement('div');
+        personContainer.className = 'chat_message';
+
+        const avatar = document.createElement('div');
+        avatar.className = 'chat_message__avatar';
+        const avatarImg = document.createElement('img');
+        avatarImg.src = imageUrl;
+        avatarImg.alt = name;
+        avatar.appendChild(avatarImg);
+
+        const nickname = document.createElement('span');
+        nickname.className = 'chat_message__nickname';
+        nickname.textContent = name;
+
+        personContainer.appendChild(avatar);
+        personContainer.appendChild(nickname);
+
+        const messageContext = document.createElement('div');
+        messageContext.className = 'chat_context';
+
+        const messageBubble = document.createElement('div');
+        messageBubble.className = 'chat_bubble';
+        const messageText = document.createElement('span');
+        messageText.textContent = message;
+        messageBubble.appendChild(messageText);
+
+        messageContext.appendChild(messageBubble);
+
+        const options = document.createElement('div');
+        options.className = 'chat_options';
+
+        const emojiButton = document.createElement('button');
+        emojiButton.className = 'btn-icon chat_board__message__option-button option-item emoji-button';
+        const emojiSvg = document.createElement('svg');
+        emojiSvg.className = 'feather feather-smile sc-dnqmqq jxshSx';
+        emojiSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+        emojiSvg.setAttribute('width', '24');
+        emojiSvg.setAttribute('height', '24');
+        emojiSvg.setAttribute('viewBox', '0 0 24 24');
+        emojiSvg.setAttribute('fill', 'none');
+        emojiSvg.setAttribute('stroke', 'currentColor');
+        emojiSvg.setAttribute('stroke-width', '2');
+        emojiSvg.setAttribute('stroke-linecap', 'round');
+        emojiSvg.setAttribute('stroke-linejoin', 'round');
+        emojiSvg.setAttribute('aria-hidden', 'true');
+
+        const circle1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle1.setAttribute('cx', '12');
+        circle1.setAttribute('cy', '12');
+        circle1.setAttribute('r', '10');
+
+        const path1 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path1.setAttribute('d', 'M8 14s1.5 2 4 2 4-2 4-2');
+
+        const line1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line1.setAttribute('x1', '9');
+        line1.setAttribute('y1', '9');
+        line1.setAttribute('x2', '9.01');
+        line1.setAttribute('y2', '9');
+
+        const line2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line2.setAttribute('x1', '15');
+        line2.setAttribute('y1', '9');
+        line2.setAttribute('x2', '15.01');
+        line2.setAttribute('y2', '9');
+
+        emojiSvg.appendChild(circle1);
+        emojiSvg.appendChild(path1);
+        emojiSvg.appendChild(line1);
+        emojiSvg.appendChild(line2);
+
+        emojiButton.appendChild(emojiSvg);
+
+        const moreButton = document.createElement('button');
+        moreButton.className = 'btn-icon chat_board__message__option-button option-item more-button';
+        const moreSvg = document.createElement('svg');
+        moreSvg.className = 'feather feather-more-horizontal sc-dnqmqq jxshSx';
+        moreSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+        moreSvg.setAttribute('width', '24');
+        moreSvg.setAttribute('height', '24');
+        moreSvg.setAttribute('viewBox', '0 0 24 24');
+        moreSvg.setAttribute('fill', 'none');
+        moreSvg.setAttribute('stroke', 'currentColor');
+        moreSvg.setAttribute('stroke-width', '2');
+        moreSvg.setAttribute('stroke-linecap', 'round');
+        moreSvg.setAttribute('stroke-linejoin', 'round');
+        moreSvg.setAttribute('aria-hidden', 'true');
+
+        const circle2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle2.setAttribute('cx', '12');
+        circle2.setAttribute('cy', '12');
+        circle2.setAttribute('r', '1');
+
+        const circle3 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle3.setAttribute('cx', '19');
+        circle3.setAttribute('cy', '12');
+        circle3.setAttribute('r', '1');
+
+        const circle4 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle4.setAttribute('cx', '5');
+        circle4.setAttribute('cy', '12');
+        circle4.setAttribute('r', '1');
+
+        moreSvg.appendChild(circle2);
+        moreSvg.appendChild(circle3);
+        moreSvg.appendChild(circle4);
+
+        moreButton.appendChild(moreSvg);
+
+        options.appendChild(emojiButton);
+        options.appendChild(moreButton);
+
+        messageContainer.appendChild(personContainer);
+        messageContainer.appendChild(messageContext);
+        messageContainer.appendChild(options);
+
+        const parentElement = document.getElementById('message-container');
+        parentElement.appendChild(messageContainer);
+    }
+
+    function scrollToBottom() {
+        /*window.scrollTo({
+            top: document.body.scrollHeight,
+            behavior: 'smooth'
+        });*/
+        //window.scrollTo(0,document.body.scrollHeight);
+        //get last element by selector
+        let elemento = document.querySelector(".chat_container_board:last-child");
+        elemento.scrollIntoView();
+    }
+
+    let mybutton = document.getElementById("scrooltotopBtn");
+          
+    // When the user scrolls down 20px from the top of the document, show the button
+    window.onscroll = function() {scrollFunction()};
+
+    function scrollFunction() {
+        if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+            mybutton.style.display = "block";
+        } else {
+            mybutton.style.display = "none";
+        }
+    }
+
+    // When the user clicks on the button, scroll to the top of the document
+    function topFunction() {
+        document.body.scrollTop = 0;
+        document.documentElement.scrollTop = 0;
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        //createChatMessageNode('Thomas Rogh', "message", 'https://randomuser.me/api/portraits/men/32.jpg');
+        //createChatMessageNodeUser('Random Man', "message answer", 'https://randomuser.me/api/portraits/men/9.jpg');
+    });
+</script>
+
+</head>
+
+<body>
+  
+<div class="--dark-theme" id="chat">
+  <div id="message-container" class="chat_board">
+    
+    
+  </div>
+  
+  
+</body>
+
+</html>

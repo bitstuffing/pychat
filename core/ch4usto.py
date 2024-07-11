@@ -5,12 +5,10 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-# experimental selenium browser client for ch4.us.to 
-# ( same backend and database than ch4.cch137.link )
+# experimental selenium browser client cch137.link
 class Ch4usto(SeleniumBrowser):
 
-    DOMAIN = "ch4.cch137.link"
-    #DOMAIN = "ch4.us.to"
+    DOMAIN = "cch137.link"
 
     def __init__(self):
         super().__init__()
@@ -20,7 +18,7 @@ class Ch4usto(SeleniumBrowser):
         self.chatUrl = f"https://{self.DOMAIN}/apps/ai-chat/"
         self.email = ""
         self.password = "Passwd.11" 
-        self.xtoken = "" # defines login state
+        self.xtoken = "" 
         self.cookie = None
 
     def register(self):
@@ -49,9 +47,11 @@ class Ch4usto(SeleniumBrowser):
             while verification_code == "":
                 emails = tempEmail.getEmails()
                 for email in emails:                    
-                    if "verification code: " in email["bodyPreview"]:
+                    if "verification code:\n\n" in email["body_text"]:
                         # extract from ' Here is your CH4 verification code: 966540 Do not share this information with anyone. The verificat' the code 966540
-                        verification_code = email["bodyPreview"].split("code: ")[1].split(" ")[0]
+                        verification_code = email["body_text"].split("code:\n\n")[1].split("\n\n")[0]
+                        print("verification code is: " + verification_code)
+                        break
 
 
             username = self.email.split("@")[0]
@@ -64,6 +64,7 @@ class Ch4usto(SeleniumBrowser):
             pass_text = WebDriverWait(self.driver, 10).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, "input[aria-label=\"Password\"]"))
             )
+            print("pass_text")
             # set password
             pass_text.send_keys(self.password)
 
@@ -71,6 +72,7 @@ class Ch4usto(SeleniumBrowser):
             code_text = WebDriverWait(self.driver, 10).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, "input[aria-label=\"Verification Code\"]"))
             )
+            print("code_text")
             # set verification code
             code_text.send_keys(verification_code)
 
@@ -78,14 +80,17 @@ class Ch4usto(SeleniumBrowser):
             button_submit = WebDriverWait(self.driver, 10).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, "button[type=\"button\"]"))
             )
+            print("button_submit")
             button_submit.click()
+            #self.driver.save_screenshot('submit_register.png')
 
-            #time.sleep(1)
+            time.sleep(5)
+            #self.driver.save_screenshot('submit_wait.png')
             # search cookie, in the new version registered users are logged in automatically
             self.cookie = self.driver.get_cookie('x-token')
             print(str(self.cookie))
             self.xtoken = self.cookie["value"]
-            self.driver.save_screenshot('ok_register.png')
+            #self.driver.save_screenshot('ok_register.png')
             print("self.xtoken: " + self.xtoken)
 
         except:
