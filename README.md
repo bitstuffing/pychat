@@ -8,13 +8,11 @@ It's a python library that can be used to import in other projects, without any 
 
 | Provider | GPT3.5 | GPT4 | C. Memory | I. Browser | Stream | Working | In GUI | Notes |
 |------------|------------|------------|------------|------------|------------|------------|------------|------------|
-| OpenChat | ✘ | ✔ | ✔ | ✘ | ✔ | ✔ | ✔ | Sometimes online services is down for maintenance |
-| Bing  | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | Automatized captcha solver with pySide6 GUI (Desktop), and prompt (last one needs Firefox and Linux)  |
-| gpt4free | ✔ | ✘ | ✔ | ✘ | ✔ | ✔ | ✔ | His engine has changed, it's consuming gptgod.site, so probably I will append his provider and remove this one |
+| Bing  | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | Automatized captcha solver just in prompt (needs Firefox and Linux)  |
 | Wrtn  | ✔ | ✔ | ✘  | ✘  | ✔ | ✔ | ✔ | South Korean by default (so you have to require in your command the answer in your language if you don't want to read in Korean) |
 | ChatGPTSpanish | ✔ | ✔ | ✘ | ✘ | ✘ | ✔ | ✔ | You're able to ask one time per petition, but you can clean and ask again |
-| You | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | GPT-4 promps needs login and are limited to 5 per account, but supports auto register a random account and login |
-| ch4  | ✔ | ✔ | ✔ | ✘ | ✔ | ✔ | ✘ | It's too slow, even streaming, but works. Needs to be logged in (you've auto-registration, but it's preferible use always the same cookie). Sometimes platform forces using Gemini-Pro, but... it's a platform bug. |
+| You | ✔ | ✔ | ✔ | ✔ | ✘ | ✔ | ✔ | GPT-4 promps needs login and are limited to 5 per account, but supports auto register a random account and login (#WOI) |
+| ch4  | ✔ | ✔ | ✔ | ✘ | ✔ | ✔ | ✘ | Just in korean |
 |  |  |  |  |  |  |  |  |  |
 
 ## Speech to text engines
@@ -22,7 +20,7 @@ It's a python library that can be used to import in other projects, without any 
 | Provider | Working | In GUI |
 |------------|------------|------------|
 | Watson | ✔ | ✘ |
-| Bing | ✔ | ✔ |
+| Bing | ✘ | ✘ |
 |  |  |  | 
 
 ## Text to speech engine
@@ -46,20 +44,10 @@ from core.you import You
 you=You()
 you.send_message(realPetitionPromptNew, stream=True)
 
-# openchat
-from core.openchat import OpenChat
-openchat = OpenChat()
-openchat.send_message(realPetitionPromptNew, stream=True)
-
 # wrtn.ai
 from core.wrtnai import WRTNAI
 wrtnai = WRTNAI()
 wrtnai.prompt(realPetitionPromptNew)
-
-# gpt4free.io/chat
-from core.gpt4free import Gpt4free
-gpt4free=Gpt4free()
-gpt4free.prompt(realPetitionPromptNew)
 
 # chatgptspanish
 from core.chatgptspanish import ChatGPTSpanish

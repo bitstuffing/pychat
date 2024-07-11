@@ -10,30 +10,95 @@ import queue
 import urllib
 import json
 
+
+# Activa el debug globalmente para todas las solicitudes
+#requests.urllib3.disable_warnings() # Inhibit InsecureRequestWarning
+#requests.urllib3.util.ssl_.DEFAULT_CIPHERS += 'HIGH:!DH:!aNULL' # Adjusting the settings to improve the workers
+import logging
+
+# Configurar el nivel de log para ver debug de urllib3
+logging.basicConfig()
+logging.getLogger().setLevel(logging.DEBUG)
+
 class You(Browser):
 
     def __init__(self, message='hello!'):
         
-        self.url = f"https://you.com/search?q={message}&fromSearchBar=true&tbm=youchat"
         self.session = requests.Session()
+        #self.session.cert = "/home/bit/file.ca"
+        self.session.verify = False
+        
+        #verify = "/home/bit/file.ca"
+        self.url = f"https://you.com/search?q={message}&fromSearchBar=true&tbm=youchat"
+        
         self.headers = {
-            'User-Agent': Browser.USER_AGENT,
-            'Accept': 'text/event-stream',
-            'Accept-Language': 'es-ES,es',
-            #'Accept-Encoding': 'gzip, deflate, br',
-            'Referer' : "https://you.com",
-            'Origin' : "https://you.com",
-            'X-SDK-Parent-Host': 'https://you.com',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; rv:109.0) Gecko/20100101 Firefox/115.0',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.5',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Dnt': '1',
+            'Upgrade-Insecure-Requests': '1',
+            'Sec-Fetch-Dest': 'document',
+            'Sec-Fetch-Mode': 'navigate',
+            'Sec-Fetch-Site': 'none',
+            'Sec-Fetch-User': '?1',
+            'Sec-Gpc': '1',
+            'Te': 'trailers',
         }
 
-        self.email = "invalidemail@gmail.com"
-        self.password="invalidPasswordJ#d€7€"
-
-        self.cfbm = ""
-        self.sessionToken = ""
-        self.jwt = ""
-
+        proxy = {
+            'http': 'http://127.0.0.1:8080'
+        }
+        
         self.conversation = []
+
+        response = self.session.get('https://you.com/',headers=self.headers, proxies=proxy)
+        print(response.cookies)
+
+        for cookie in response.cookies:
+            print(cookie.name, cookie.value)
+
+        newCookies = response.cookies.get_dict()
+        newCookies['youpro_subscription'] = 'false'
+        newCookies['youchat_smart_learn'] = 'true'
+        newCookies['youchat_personalization'] = 'true'
+        newCookies['you_subscription'] = 'free'
+        #newCookies['uuid_guest'] = str(uuid.uuid4())
+        #newCookies['uuid_guest_backup'] = newCookies['uuid_guest']
+        newCookies['total_query_count'] = "0"
+        newCookies['safesearch_guest'] = 'Moderate'
+        newCookies['daily_query_count'] = "0"
+        newCookies['daily_query_date'] = datetime.datetime.now().strftime("%a %b %d %Y")
+        newCookies['ai_model'] = 'gpt_4o'
+        defaultUUID = str(uuid.uuid4())
+        key = 'ab.storage.deviceId.'+defaultUUID
+        key2 = 'ab.storage.sessionId.'+defaultUUID
+
+        #g%3A4821c822-0124-bc23-aac4-5f2b99d90b84%7Ce%3Aundefined%7Cc%3A1720534394566%7Cl%3A1720598297294
+        newCookies[key] = 'g%3A'+str(uuid.uuid4())+'%7Ce%3Aundefined%7Cc%3A1720534394566%7Cl%3A1720598297294'
+        #g%3Ab3e5e4cc-9e7f-0d55-43bd-067f71d00da9%7Ce%3A1720600139045%7Cc%3A1720598297294%7Cl%3A1720598339045
+        newCookies[key2] = 'g%3A'+str(uuid.uuid4())+'%7Ce%3A1720600139045%7Cc%3A1720598297294%7Cl%3A1720598339045'
+        
+        self.headers2 = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; rv:109.0) Gecko/20100101 Firefox/115.0',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+            'Host' : 'you.com',
+            'Accept-Language': 'en-US,en;q=0.5',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Referer' : "https://you.com/",
+            'DNT': '1',
+            'Connection': 'keep-alive',
+            'Sec-Fetch-Dest': 'document',
+            'Sec-Fetch-Mode': 'navigate',
+            'Sec-Fetch-Site': 'none',
+            'Sec-Fetch-User': '?1',
+            'Sec-GPC' : '1',
+            'Upgrade-Insecure-Requests': '1'
+        }
+        print(newCookies)
+
+        response2 = self.session.get('https://you.com/api/get_nullstate_suggestions?chat_mode=default',headers=self.headers2, cookies=newCookies)
+        print(response2.cookies)
 
     def login(self, newRegister=False):
         
