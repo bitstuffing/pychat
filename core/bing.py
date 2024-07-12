@@ -449,13 +449,10 @@ class Bing(Browser):
         print(f'connection_key: {connection_key}')
         #connection_key = str(uuid.uuid4())
         paramsDic = {
-            'clientbuild': 'sydney',
+            'clientbuild': 'bingDesktop',
             'referer': urllib.parse.quote_plus(self.form_url),
             'uqurequestid': request_id,
-            'surface': 'desktop',
-            'autodetect': 1,
-            'uquclientversion': 0,
-            'sroptions' : 'cdxrwss,cdxsydoroff,cdxwhisr,cdxwsnnc,lidprimary,cdxdlid,autotts',
+            'form' : 'QBLH',
             'language': 'xx-yy',
             'format': 'simple',
             'Ocp-Apim-Subscription-Key': 'key',
