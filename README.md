@@ -9,9 +9,9 @@ It's a python library that can be used to import in other projects, without any 
 | Provider | GPT3.5 | GPT4 | C. Memory | I. Browser | Stream | Working | In GUI | Notes |
 |------------|------------|------------|------------|------------|------------|------------|------------|------------|
 | Bing  | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | Automatized captcha solver just in prompt (needs Firefox and Linux)  |
-| Wrtn  | ✔ | ✔ | ✘  | ✘  | ✔ | ✔ | ✔ | South Korean by default (so you have to require in your command the answer in your language if you don't want to read in Korean) |
+| Wrtn  | ✔ | ✔ | ✘  | ✘  | ✔ | ✔ | ✔ | South Korean by default |
 | ChatGPTSpanish | ✔ | ✔ | ✘ | ✘ | ✘ | ✔ | ✔ | You're able to ask one time per petition, but you can clean and ask again |
-| You | ✔ | ✔ | ✔ | ✔ | ✘ | ✔ | ✔ | GPT-4 promps needs login and are limited to 5 per account, but supports auto register a random account and login (#WOI) |
+| You | ✔ | ✔ | ✔ | ✔ | ✔ | ✘ | ✔ | GPT-4 promps needs login and are limited to 5 per account, but supports auto register a random account and login (#WOI) |
 | ch4  | ✔ | ✔ | ✔ | ✘ | ✔ | ✔ | ✘ | Just in korean |
 |  |  |  |  |  |  |  |  |  |
 
@@ -20,7 +20,7 @@ It's a python library that can be used to import in other projects, without any 
 | Provider | Working | In GUI |
 |------------|------------|------------|
 | Watson | ✔ | ✘ |
-| Bing | ✘ | ✘ |
+| Bing | ✔ | ✘ |
 |  |  |  | 
 
 ## Text to speech engine
