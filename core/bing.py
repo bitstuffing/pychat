@@ -187,20 +187,6 @@ class Bing(Browser):
         cookie = self.extractCookiesFromRealFirefox(url)
         return cookie
     
-    def cookiesToDict(self, cookies: str) -> dict:
-        cookies = {
-            key_value.strip().split("=")[0]: "=".join(key_value.split("=")[1:])
-            for key_value in cookies.split(";")
-        }
-        cookies2 = {}
-        for key in cookies:
-            if cookies[key] == '':
-                #del cookies[key]
-                pass
-            else:
-                cookies2[key] = cookies[key].strip()
-        return cookies2
-
     async def init_conversation_async(self):
         response = self.session.get(f"https://www.bing.com/turing/conversation/create?bundleVersion={Bing.VERSION}", headers=self.headers)
         data = response.json()
