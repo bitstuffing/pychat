@@ -17,7 +17,7 @@ from core.seleniumbrowser import SeleniumBrowser
 
 class Browser():
 
-    USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64; rv:120.0) Gecko/20100101 Firefox/122.0'
+    USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0'
     USER_AGENT_EDGE = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/122.0.0.0"
     STEAM_BUFFER_SIZE = 512
 
@@ -42,6 +42,20 @@ class Browser():
         if timeout:
             time.sleep(timeout)
         process.kill()
+
+    def cookiesToDict(self, cookies: str) -> dict:
+        cookies = {
+            key_value.strip().split("=")[0]: "=".join(key_value.split("=")[1:])
+            for key_value in cookies.split(";")
+        }
+        cookies2 = {}
+        for key in cookies:
+            if cookies[key] == '':
+                #del cookies[key]
+                pass
+            else:
+                cookies2[key] = cookies[key].strip()
+        return cookies2
 
     
     def get_cookies_from_internal_storage(self, ff_cookies):

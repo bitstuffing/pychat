@@ -43,9 +43,9 @@ class AudioRecorder(threading.Thread):
                 self.queue.put(audio.frame_data)
 
 class Bing(Browser):
-    VERSION = "1.1381.12"
+    VERSION = "1.1788.0"
     ANONYMOUS_LIMIT = 10
-    TIMEOUT_LIMIT = 6
+    TIMEOUT_LIMIT = 10
 
     conversationId = ''
     clientId = ''
@@ -187,20 +187,6 @@ class Bing(Browser):
         cookie = self.extractCookiesFromRealFirefox(url)
         return cookie
     
-    def cookiesToDict(self, cookies: str) -> dict:
-        cookies = {
-            key_value.strip().split("=")[0]: "=".join(key_value.split("=")[1:])
-            for key_value in cookies.split(";")
-        }
-        cookies2 = {}
-        for key in cookies:
-            if cookies[key] == '':
-                #del cookies[key]
-                pass
-            else:
-                cookies2[key] = cookies[key].strip()
-        return cookies2
-
     async def init_conversation_async(self):
         response = self.session.get(f"https://www.bing.com/turing/conversation/create?bundleVersion={Bing.VERSION}", headers=self.headers)
         data = response.json()
@@ -449,13 +435,10 @@ class Bing(Browser):
         print(f'connection_key: {connection_key}')
         #connection_key = str(uuid.uuid4())
         paramsDic = {
-            'clientbuild': 'sydney',
+            'clientbuild': 'bingDesktop',
             'referer': urllib.parse.quote_plus(self.form_url),
             'uqurequestid': request_id,
-            'surface': 'desktop',
-            'autodetect': 1,
-            'uquclientversion': 0,
-            'sroptions' : 'cdxrwss,cdxsydoroff,cdxwhisr,cdxwsnnc,lidprimary,cdxdlid,autotts',
+            'form' : 'QBLH',
             'language': 'xx-yy',
             'format': 'simple',
             'Ocp-Apim-Subscription-Key': 'key',

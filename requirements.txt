@@ -1,5 +1,4 @@
 selenium
-undetected_chromedriver
 SpeechRecognition
 websocket-client
 pyAudio
@@ -7,5 +6,4 @@ poetry
 pytest
 aiohttp
 dateutils
-pySide6
 flask
