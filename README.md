@@ -1,164 +1,114 @@
 # pyChat
 
-This project tries to be a free library to create a python assistant with GPT4 and other providers like Bing Search, Watson Speech to Text, Bing Speech to Text, Google Text to Speech and more.
-
 It's a python library that can be used to import in other projects, without any API key, and with free internet partners.
 
-## Models engine implemented
-
-| Provider | GPT3.5 | GPT4 | C. Memory | I. Browser | Stream | Working | In GUI | Notes |
-|------------|------------|------------|------------|------------|------------|------------|------------|------------|
-| Bing  | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | Automatized captcha solver just in prompt (needs Firefox and Linux)  |
-| Wrtn  | ✔ | ✔ | ✘  | ✘  | ✔ | ✔ | ✔ | South Korean by default |
-| ChatGPTSpanish | ✔ | ✔ | ✘ | ✘ | ✘ | ✔ | ✔ | You're able to ask one time per petition, but you can clean and ask again |
-| You | ✔ | ✔ | ✔ | ✔ | ✔ | ✘ | ✔ | GPT-4 promps needs login and are limited to 5 per account, but supports auto register a random account and login (#WOI) |
-| ch4  | ✔ | ✔ | ✔ | ✘ | ✔ | ✔ | ✘ | Just in korean |
-|  |  |  |  |  |  |  |  |  |
-
-## Speech to text engines
-
-| Provider | Working | In GUI |
-|------------|------------|------------|
-| Watson | ✔ | ✘ |
-| Bing | ✔ | ✘ |
-|  |  |  | 
-
-## Text to speech engine
-
-| Provider | Working | In GUI |
-|------------|------------|------------|
-| Google | ✔  | ✘ |
-|  |  |  | 
+You can add this simply selecting a provider and making a query search.
 
 
-# How to use it (future wiki section)
+# Renew
 
-There is a pytest file that could be used to test the library. Anyway you can use it for your own tests, for instance:
+The new idea is increase support with new providers which give you modern models:
+
+- GPT o1, GPT o1-mini, GPT-4o
+- DeepThink (R1) with web search
+- Claude 3.5 Sonnet
+- GPT-4o mini
+- Copilot 
+
+...
+
+# History
+
+This project start with a try to be a free library to create a python assistant with GPT4 and other providers like Bing Search, Watson Speech to Text, Bing Speech to Text, Google Text to Speech and more.
+
+Now the time has increased the number of models and the support of old pages are better (someones) removed and replaced than use GPT4 or other models. If you want to use this there is a lot of providers (in this project) that use old models (GPT4, GPT3.5, Old Bing Search Engine with GPT4...) and text-to-speech, also speech-to-text (it's working fine with Bing and Google providers)
+
+
+# Example of use
+
+Select a provider and use it:
 
 ```python
-
-realPetitionPromptNew = "¿qué modelo de lenguaje estás utilizando? ¿chatgpt3 o chatgpt4?"
-
-# You
-from core.you import You
-you=You()
-you.send_message(realPetitionPromptNew, stream=True)
-
-# wrtn.ai
-from core.wrtnai import WRTNAI
-wrtnai = WRTNAI()
-wrtnai.prompt(realPetitionPromptNew)
-
-# chatgptspanish
-from core.chatgptspanish import ChatGPTSpanish
-chatgptspanish = ChatGPTSpanish()
-chatgptspanish.send_message(realPetitionPromptNew)
-
-# ch4
-from core.ch4usto import Ch4usto
-c=Ch4usto()
-c.send_message(realPetitionPromptNew)
-
-# Bing
 from core.bing import Bing
-bing = Bing()
-# Bing speech to text
-bing.speech_to_text()
-# BingGPT AI
-bing.init_conversation(realPetitionPromptNew)
-
-# Watson speech to text
-from core.watson import Watson
-watson = Watson()
-watson.speech_to_text()
-
-# Google text to speech
-from core.translator import Translator
-translator = Translator()
-translator.play(realPetitionPromptNew)
-
-```
-And enjoy it!
-
-### Streams
-
-In this kind of APIs you will concern the `streaming` ability to get a `real time` response. In this library with the partners which provide `streaming` you have to add a queue:
-
-```
-import queue
-myQueue = queue.Queue()
+b=Bing()
+b.init_conversation("hello")
 ```
 
-and use it:
+and you will see:
 
+```bash
+BingMessageType1, author: bot, message: Hi
+BingMessageType1, author: bot, message: Hi there
+BingMessageType1, author: bot, message: Hi there!
+BingMessageType1, author: bot, message: Hi there! How
+BingMessageType1, author: bot, message: Hi there! How can
+BingMessageType1, author: bot, message: Hi there! How can I
+BingMessageType1, author: bot, message: Hi there! How can I assist
+BingMessageType1, author: bot, message: Hi there! How can I assist you
+BingMessageType1, author: bot, message: Hi there! How can I assist you today
+BingMessageType1, author: bot, message: Hi there! How can I assist you today?
+BingMessageType1, author: bot, message: Hi there! How can I assist you today? 😊
+BingMessageType1, author: bot, message: Hi there! How can I assist you today? 😊
 ```
+
+A queue with the stream will be created, you can catch it to get the stream in real time.
+
+or:
+
+```python
 from core.wrtnai import WRTNAI
-wrtnai = WRTNAI()
-wrtnai.prompt(cmd=realPetitionPromptNew, queue=myQueue, stream=True)
+w=WRTNAI()
+w.create_conversation()
+w.sendMessage("hello")
 ```
 
-Queue could be read from outside if you consider use asyncio implementation.
+with the queue:
 
-## Developer notes 
-
-## Why?
-
-I always want to know how the things works, and other libraries don't show you how the things works. 
-
-I want to offer an updated library with some free models, to use it for free, and all will be open source.
-
-### GUI frameworks
-
-Now I'm centered in core functionalities, but I've tried to develop a multiplatform GUI:
-
-![GUI](https://i.ibb.co/vPpfDWh/Captura-desde-2024-01-24-21-25-57.png)
-
-
-Currently I'm working on poetry and pySide6 multiplatform GUI. To build it run:
+```bash
+response: 42/v1/guest-chat,["data",{"chunk":"Hello"}]
+Hello
+response: 42/v1/guest-chat,["data",{"chunk":"Hello !"}]
+Hello !
+response: 42/v1/guest-chat,["data",{"chunk":"Hello!  How"}]
+Hello!  How
+response: 42/v1/guest-chat,["data",{"chunk":"Hello! How "}]
+Hello! How 
+response: 42/v1/guest-chat,["data",{"chunk":"Hello! How can  뤼"}]
+Hello! How can  뤼
+response: 42/v1/guest-chat,["data",{"chunk":"Hello! How can 뤼 튼"}]
+Hello! How can 뤼 튼
+response: 42/v1/guest-chat,["data",{"chunk":"Hello! How can 뤼튼 "}]
+Hello! How can 뤼튼 
+response: 42/v1/guest-chat,["data",{"chunk":"Hello! How can 뤼튼  assist"}]
+Hello! How can 뤼튼  assist
+response: 42/v1/guest-chat,["data",{"chunk":"Hello! How can 뤼튼 assist "}]
+Hello! How can 뤼튼 assist 
+response: 42/v1/guest-chat,["data",{"chunk":"Hello! How can 뤼튼 assist  you"}]
+Hello! How can 뤼튼 assist  you
+response: 42/v1/guest-chat,["data",{"chunk":"Hello! How can 뤼튼 assist you  today"}]
+Hello! How can 뤼튼 assist you  today
+response: 42/v1/guest-chat,["data",{"chunk":"Hello! How can 뤼튼 assist you today ?"}]
+Hello! How can 뤼튼 assist you today ?
+response: 42/v1/guest-chat,["data",{"chunk":"Hello! How can 뤼튼 assist you today?"}]
+Hello! How can 뤼튼 assist you today?
 ```
-curl -sSL https://install.python-poetry.org | python -
-python -m poetry shell
-pip install -r requirements.txt
-poetry update
-poetry install
-poetry run gui
-```
+Or:
 
-But if you want to make all in two commands, make it easy:
-```
-pip install -r requirements.txt
-python main.py
-```
-
-And enjoy.
-
-
-### dev Briefcase issues
-
-In the past I used Briefcase with Toga. It was an awesome project but Briefcase/Toga/Gbulb-GTK has some ![bugs](https://github.com/beeware/gbulb/issues/116) with aiohttp and asyncio calls in GTK (related to his subproject gbulb, that it has not implement very well wss throw ssl, and toga-gtk, forgiven too many time for developers),
-so I discarted it officially. I tried to fix it, without success, and I'm not the first one ![to try it](https://github.com/beeware/gbulb/pull/60)). So, multiplatform GUI was implemented but unsupported with briefcase.
-
-With a working mobile version:
-
-![Mobile GUI](https://i.ibb.co/NFsRKVb/photo-2024-01-01-21-41-27.jpg)
-
-If you want know about how to use it with Toga/Briefcase take a look about this [commit](https://github.com/bitstuffing/pychat/tree/a7f715f9040323538998e2b9fe520e91fbbdb4d7) in the README.md file.
-
-
-### PIP issues
-
-In ArchLinux pip is configured to be used with --break-system-packages or system, buildozer needs a fix.
-Edit ~/.config/pip/pip.conf
-
-```
-[global]
-break-system-packages = true
+```python
+from core.chatgptspanish import ChatGPTSpanish
+c=ChatGPTSpanish()
+c.send_message("hello")
 ```
 
-And enjoy it!
+```bash
+'¡Hola! ¿En qué puedo ayudarte hoy?'
+```
+
+You're able to manage it, because it's an stream, you could get the last element, wait... do what you want in real time, or simply display it.
+
 
 # License
 
-This project is licensed under the terms of the [CC BY-NC-ND 4.0](http://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1) license, and released by [@bitstuffing](https://github.com/bitstuffing) with love. 
+This project is licensed under the terms of the CC BY-NC-ND 4.0 license, and released by @bitstuffing with love.
 
-It's a open development in an investigation phase, and it's not allowed for business use. 
+It's a open development in an investigation phase, and it's not allowed for business use.

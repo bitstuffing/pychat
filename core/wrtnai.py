@@ -103,9 +103,9 @@ class WRTNAI(Browser):
         jsonResponse = response.json()
         self.conversationId = jsonResponse['data']['_id']
 
-    def sendMessage(self, message):
+    def sendMessage(self, message, queue=queue.Queue()):
         # call to send_message async function
-        asyncio.run(self.send_message(message))
+        asyncio.run(self.send_message(message, queue))
 
     async def send_message(self, message, queue = queue.Queue()):
         # -H 'DNT: 1' -H 'Connection: keep-alive, Upgrade' -H 'Cookie: __w_id=W2.2.4@@@@; Mixpanel-Distinct-Id=%24device%3Axxxx; cf_clearance=ppppp-1.2.1.1-qqqqq.eeee.rrrr.kkkk' -H 'Sec-Fetch-Dest: empty' -H 'Sec-Fetch-Mode: websocket' -H 'Sec-Fetch-Site: same-site' -H 'Pragma: no-cache' -H 'Cache-Control: no-cache' -H 'Upgrade: websocket'

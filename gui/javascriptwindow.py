@@ -1,11 +1,7 @@
-from core.openchat import OpenChat
-from core.bing import Bing
-from core.you import You
 from core.chatgptspanish import ChatGPTSpanish
-from core.gpt4free import Gpt4free
-from core.helpers.binghelper import BingResponse, BingMessageType1, BingMessageType2
-from core.watson import Watson
 from core.wrtnai import WRTNAI
+from core.bing import Bing
+from core.helpers.binghelper import BingResponse, BingMessageType1, BingMessageType2
 import uuid
 from PySide6.QtCore import QObject, QThread, QRunnable
 from PySide6.QtWidgets import QMainWindow
@@ -96,8 +92,9 @@ class ChatWorker(QRunnable, QObject):
         self.father = father
 
     def send_message_in_background(self):
-        # if self.provider has send_message
-        if hasattr(self.provider, 'send_message'):
+        if hasattr(self.provider, 'sendMessage'):
+            self.provider.sendMessage(message=self.message, queue=self.queue)
+        elif hasattr(self.provider, 'send_message'):
             self.provider.send_message(message=self.message, stream=True, queue=self.queue)
         elif hasattr(self.provider, 'init_conversation'):
             self.provider.init_conversation(message=self.message, queue=self.queue)
@@ -172,15 +169,13 @@ class JavascriptWindow(QMainWindow):
     def __init__(self):
         print("init... javascript window")
         super().__init__()
-        self.provider = OpenChat()#ChatGPTSpanish()#Gpt4free()#You()#Bing()
-        self.voiceProvider = Bing()#Watson()
+        self.provider = ChatGPTSpanish()
+        self.voiceProvider = Bing()
 
     def voiceSelectionChange(self,i):
         print("Items in the list are :")
         print(self.sender().currentText())
-        if self.sender().currentText() == "Watson":
-            self.voiceProvider = Watson()
-        elif self.sender().currentText() == "Bing":
+        if self.sender().currentText() == "Bing":
             self.voiceProvider = Bing()
 
     @QtCore.Slot()
@@ -252,17 +247,10 @@ class JavascriptWindow(QMainWindow):
         solveCaptcha = False
         if self.combobox.currentText() == "ChatGPT Spanish":
             self.provider = ChatGPTSpanish()
-        elif self.combobox.currentText() == "GPT4Free":
-            self.provider = Gpt4free()
-        elif self.combobox.currentText() == "You":
-            self.provider = You()
-
         elif self.combobox.currentText() == "Bing":
             self.provider = Bing()
             solveCaptcha = True
             self.proccessBingCaptha(self.view)
-        elif self.combobox.currentText() == "OpenChat":
-            self.provider = OpenChat()
         elif self.combobox.currentText() == "Wrtn(ai)":
             self.provider = WRTNAI()
 
