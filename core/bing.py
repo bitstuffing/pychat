@@ -184,7 +184,7 @@ class Bing(Browser):
     def launch_captcha_solver(self):
         # set valid cct cookie
         url = self.getCaptchaSolverUrl()
-        cookie = self.extractCookiesFromRealFirefox(url)
+        cookie = self.extractCookiesFromRealFirefox(url, domain=".bing.com")
         return cookie
     
     async def init_conversation_async(self):
